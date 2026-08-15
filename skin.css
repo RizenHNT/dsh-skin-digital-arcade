@@ -6,60 +6,26 @@
  */
 
 @font-face {
-  font-family: 'Ark Pixel 16';
-  src: url('/skin-assets/fonts/ark-pixel-16px-monospaced-latin.otf.woff2') format('woff2');
+  font-family: 'Fusion Pixel 12px Mono latin';
+  src: url('/skin-assets/fonts/fusion-pixel-12px-latin.otf.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0000-00FF;
 }
 
 @font-face {
-  font-family: 'Ark Pixel 16';
-  src: url('/skin-assets/fonts/ark-pixel-16px-monospaced-zh_cn.otf.woff2') format('woff2');
+  font-family: 'Fusion Pixel 12px Mono zh_hans';
+  src: url('/skin-assets/fonts/fusion-pixel-12px-zh_hans.otf.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+4E00-9FFF;
-}
-
-@font-face {
-  font-family: 'Ark Pixel 16';
-  src: url('/skin-assets/fonts/ark-pixel-16px-monospaced-ja.otf.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+3040-30FF;
-}
-
-@font-face {
-  font-family: 'Ark Pixel 10';
-  src: url('/skin-assets/fonts/ark-pixel-10px-monospaced-latin.otf.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Ark Pixel 10';
-  src: url('/skin-assets/fonts/ark-pixel-10px-monospaced-zh_cn.otf.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+4E00-9FFF;
-}
-
-@font-face {
-  font-family: 'Ark Pixel 10';
-  src: url('/skin-assets/fonts/ark-pixel-10px-monospaced-ja.otf.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+3040-30FF;
+  unicode-range: U+3000-303F, U+3040-30FF, U+4E00-9FFF, U+FF00-FFEF;
 }
 
 :root {
-  --dsw-font-pixel: 'Ark Pixel 16', 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  --dsw-font-pixel-small: 'Ark Pixel 10', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --dsw-font-pixel: 'Fusion Pixel 12px Mono latin', 'Fusion Pixel 12px Mono zh_hans', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --dsw-font-pixel-small: 'Fusion Pixel 12px Mono latin', 'Fusion Pixel 12px Mono zh_hans', 'Microsoft YaHei', 'PingFang SC', sans-serif;
   --rizen-cyan: #6fffe0;
   --rizen-cyan-bright: #e1fff8;
   --rizen-violet: #d28cff;
@@ -202,7 +168,7 @@ body[data-ds-dark-theme] svg ellipse[fill='#6187D8'] {
   }
 }
 
-/* Ark Pixel is reserved for compact controls. Paragraphs and the composer
+/* Fusion Pixel is reserved for compact controls. Paragraphs and the composer
    stay on the readable system stack. */
 body[data-ds-dark-theme] button,
 body[data-ds-dark-theme] [role='button'],
