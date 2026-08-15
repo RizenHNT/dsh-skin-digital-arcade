@@ -2,6 +2,12 @@
 
 DeepSeek Harness Web GUI 的数码电玩风 HUD 皮肤（独立分发 bundle）。
 
+## 预览
+
+| 暗色模式 | 亮色模式 |
+|---|---|
+| ![dark](preview/preview-dark.png) | ![light](preview/preview-light.png) |
+
 ## 特性
 
 - **霓虹配色**：青色 `#6fffe0` / 紫罗兰 `#d28cff` / 品红 `#ff62bd` / 琥珀 `#ffc36b`
