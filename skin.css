@@ -897,9 +897,11 @@ body[data-ds-dark-theme] [class*='sidebarCol'] {
 /* SettingsRoot mounts its fixed dialog inside the sidebar slot. While that
    dialog is open, let its viewport layer escape the column clip and place the
    sidebar stack above the conversation; the mask then covers the whole shell
-   and the panel remains clickable. */
+   and the panel remains clickable. The lift stays below body-level layers
+   (Modal 1000, Toast/Menu 1100) so dialogs opened from inside settings — e.g.
+   the provider delete confirm — still render above the settings panel. */
 body[data-ds-dark-theme] [class*='sidebarCol']:has([role='dialog']) {
-  z-index: 1001;
+  z-index: 999;
   overflow: visible;
 }
 
