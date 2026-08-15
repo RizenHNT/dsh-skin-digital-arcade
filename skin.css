@@ -100,6 +100,8 @@ body:not([data-ds-dark-theme]) {
     #f7faff;
 }
 
+
+
 body[data-ds-dark-theme] {
   color: var(--rizen-ink);
   font-family: var(--dsw-font-family);
@@ -1522,3 +1524,898 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
     transition-duration: 0.001ms !important;
   }
 }
+
+
+/* ── LIGHT MIRROR (auto-generated): dark rules cloned with
+   selector switched to body:not([data-ds-dark-theme]) and colors remapped
+   for pale surfaces. Regenerate with tools/gen-light-mirror.py. */
+body:not([data-ds-dark-theme]) {
+  color: var(--rizen-ink);
+  font-family: var(--dsw-font-family);
+
+  --dsw-alias-bg-base: rgb(250, 252, 255);
+  --dsw-alias-bg-layer-1: rgb(238, 244, 252);
+  --dsw-alias-bg-layer-2: rgb(230, 238, 249);
+  --dsw-alias-bg-layer-3: rgb(220, 231, 246);
+  --dsw-alias-bg-overlay: rgb(214, 227, 244);
+  --dsw-alias-bg-module-platform: rgb(233, 240, 250);
+  --dsw-alias-bg-multi-select: rgb(220, 231, 246);
+  --dsw-alias-bg-skeleton: rgba(182, 244, 255, 0.08);
+
+  --dsw-alias-brand-primary-new-colorprimary-new-color: rgb(111, 255, 224);
+  --dsw-alias-button-info-fill: rgb(111, 255, 224);
+  --dsw-alias-button-info-hover: rgb(225, 255, 248);
+  --dsw-alias-button-primary-dimmed: rgb(226, 233, 246);
+  --dsw-alias-state-business-primary: rgb(210, 140, 255);
+  --dsw-alias-state-business-tertiary: rgb(226, 233, 246);
+  --dsw-alias-state-success-secondary: rgb(98, 190, 140);
+
+  --dsw-specific-sidebar-fill: rgb(244, 248, 253);
+  --dsw-specific-sidebar-nav-item-active: rgb(222, 232, 246);
+  --dsw-specific-sidebar-nav-item-active-accent: rgb(111, 255, 224);
+  --dsw-specific-sidebar-nav-item-hover: rgb(14, 25, 51);
+  --dsw-specific-bubble: rgb(240, 246, 253);
+  --dsw-specific-bubble-highlight: rgb(255, 98, 189);
+  --dsw-specific-input-major: rgb(252, 254, 255);
+  --dsw-specific-login-input: rgb(236, 242, 250);
+  --dsw-specific-selector: rgb(236, 242, 250);
+  --dsw-specific-tip: rgb(236, 242, 250);
+
+  --dsw-alias-border-l1: rgba(42, 127, 212, 0.14);
+  --dsw-alias-border-l2: rgba(42, 127, 212, 0.22);
+  --dsw-alias-border-l3: rgba(110, 80, 200, 0.3);
+  --dsw-alias-border-l4: rgba(42, 127, 212, 0.4);
+
+  --dsw-alias-label-primary: rgb(38, 52, 82);
+  --dsw-alias-label-secondary: rgb(88, 106, 140);
+  --dsw-alias-label-tertiary: rgb(120, 138, 168);
+  --dsw-alias-label-caption: rgb(120, 138, 168);
+  --dsw-alias-label-primary-bluish: rgb(38, 52, 82);
+
+  --dsw-alias-interactive-bg-hover: rgba(42, 127, 212, 0.08);
+  --dsw-alias-interactive-bg-active: rgba(42, 127, 212, 0.14);
+  --dsw-alias-interactive-bg-hover-accent: rgba(110, 80, 200, 0.18);
+  --dsw-alias-interactive-bg-hover-solid: rgb(220, 231, 246);
+
+  --dsw-alias-markdown-code-block: rgb(235, 241, 250);
+  --dsw-alias-markdown-code-block-banner: rgb(238, 243, 251);
+  --dsw-alias-markdown-inline-code: rgb(220, 231, 246);
+  --dsw-alias-markdown-tag: rgb(220, 231, 246);
+  --dsw-alias-markdown-placeholder: rgb(236, 242, 250);
+
+  --dsw-alias-toast-bg: rgb(236, 242, 250);
+  --dsw-alias-tooltip-bg: rgb(236, 242, 250);
+  --dsw-alias-scrollbar-bg-l1: rgb(233, 240, 250);
+  --dsw-alias-scrollbar-bg-l2: rgb(220, 231, 246);
+  --dsw-alias-scrollbar-hover-l1: rgb(91, 140, 255);
+  --dsw-alias-scrollbar-hover-l2: rgb(167, 139, 250);
+
+  background:
+    radial-gradient(ellipse 120% 100% at 50% 42%, transparent 54%, rgba(0, 0, 0, 0.12) 100%),
+    radial-gradient(ellipse 80% 58% at 12% 0%, rgba(210, 50, 140, 0.1), transparent 62%),
+    radial-gradient(ellipse 76% 58% at 90% 100%, rgba(190, 130, 40, 0.12), transparent 64%),
+    repeating-linear-gradient(0deg, rgba(42, 127, 212, 0.05) 0 1px, transparent 1px 32px),
+    repeating-linear-gradient(90deg, rgba(42, 127, 212, 0.05) 0 1px, transparent 1px 32px),
+    radial-gradient(circle, rgba(124, 231, 255, 0.34) 0 1px, transparent 1.6px) 0 0 / 128px 128px,
+    radial-gradient(circle, rgba(167, 139, 250, 0.26) 0 1px, transparent 1.6px) 40px 22px / 176px 176px,
+    var(--rizen-night);
+  animation: dsh-background-drift 42s linear infinite;
+}
+body:not([data-ds-dark-theme]) svg ellipse[fill='#6187D8'] {
+  fill: var(--rizen-violet);
+  animation: dsh-hero-glow 4.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) button,
+body:not([data-ds-dark-theme]) [role='button'],
+body:not([data-ds-dark-theme]) select {
+  font-family: var(--dsw-font-pixel);
+  letter-spacing: 0.1px;
+}
+body:not([data-ds-dark-theme]) [class*='headlineText'],
+body:not([data-ds-dark-theme]) [class*='previewBadge'],
+body:not([data-ds-dark-theme]) [class*='newSessionLabel'],
+body:not([data-ds-dark-theme]) [class*='crumb'],
+body:not([data-ds-dark-theme]) [role='tab'],
+body:not([data-ds-dark-theme]) [data-time-hover-root] :is([class*='timeStart'], [class*='timeEnd']) {
+  font-family: var(--dsw-font-pixel);
+}
+body:not([data-ds-dark-theme]) [data-phase] textarea,
+body:not([data-ds-dark-theme]) [data-phase] [contenteditable='true'] {
+  caret-color: var(--rizen-cyan);
+}
+body:not([data-ds-dark-theme]) [class*='_frame'] {
+  background: transparent;
+}
+body:not([data-ds-dark-theme]) [data-phase='hero'],
+body:not([data-ds-dark-theme]) [data-phase='active'],
+body:not([data-ds-dark-theme]) [data-phase='settling'] {
+  background: rgba(250, 252, 255, 0.88);
+}
+body:not([data-ds-dark-theme]) [data-phase='hero'],
+body:not([data-ds-dark-theme]) [data-phase='active'],
+body:not([data-ds-dark-theme]) [data-phase='settling'] {
+  background-image:
+    linear-gradient(180deg, rgba(210, 50, 140, 0.14) 0%, rgba(12, 9, 32, 0.5) 24%, rgba(255, 195, 107, 0.08) 66%, rgba(7, 14, 31, 0.74) 100%),
+    url('/skin-assets/rizen-arcade-background.webp'),
+    linear-gradient(112deg, transparent 0 38%, rgba(255, 98, 189, 0.1) 45%, rgba(255, 195, 107, 0.12) 51%, rgba(30, 160, 140, 0.1) 56%, transparent 64%),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.025) 0 1px, transparent 1px 36px),
+    repeating-linear-gradient(90deg, rgba(124, 231, 255, 0.025) 0 1px, transparent 1px 36px),
+    radial-gradient(circle at 18% 16%, rgba(124, 231, 255, 0.1), transparent 22%),
+    radial-gradient(circle at 88% 78%, rgba(167, 139, 250, 0.1), transparent 26%);
+  background-position: 0 0, center center, -140% 0, 0 0, 0 0, 0 0, 0 0;
+  background-size: 100% 100%, cover, 260% 100%, 36px 36px, 36px 36px, 100% 100%, 100% 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
+  animation: dsh-phase-signal 18s linear infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase='hero'],
+body:not([data-ds-dark-theme]) [data-phase='active'],
+body:not([data-ds-dark-theme]) [data-phase='settling'] {
+  position: relative;
+}
+body:not([data-ds-dark-theme]) [data-phase='hero']::before,
+body:not([data-ds-dark-theme]) [data-phase='active']::before,
+body:not([data-ds-dark-theme]) [data-phase='settling']::before {
+  content: '';
+  position: absolute;
+  top: 104px;
+  right: 26px;
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+  background: url('/skin-assets/rizen-data-core-sprite.webp') no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.18;
+  z-index: 0;
+  animation:
+    dsh-core-frames 2.6s infinite,
+    dsh-phase-orbit 17s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase='hero']::after,
+body:not([data-ds-dark-theme]) [data-phase='active']::after,
+body:not([data-ds-dark-theme]) [data-phase='settling']::after {
+  content: '';
+  position: absolute;
+  top: 210px;
+  right: 118px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  background: url('/skin-assets/rizen-data-shard-sprite.webp') no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.24;
+  z-index: 0;
+  animation:
+    dsh-shard-frames 1.9s infinite reverse,
+    dsh-shard-float 11s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] {
+  background: rgba(244, 248, 253, 0.96);
+  background-image:
+    linear-gradient(180deg, rgba(210, 50, 140, 0.1), rgba(8, 14, 31, 0.9)),
+    url('/skin-assets/rizen-arcade-background.webp'),
+    linear-gradient(180deg, rgba(124, 231, 255, 0.1), transparent 24%),
+    repeating-linear-gradient(0deg, rgba(42, 127, 212, 0.04) 0 1px, transparent 1px 28px);
+  background-position: 0 0, center center, 0 0, 0 0;
+  background-size: 100% 100%, cover, 100% 100%, 100% 28px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  border-right: 1px solid rgba(42, 127, 212, 0.14);
+  animation: dsh-sidebar-scan 24s linear infinite;
+}
+body:not([data-ds-dark-theme]) [class*='detailsCol'] {
+  background: rgba(238, 244, 252, 0.96);
+  background-image: linear-gradient(180deg, rgba(167, 139, 250, 0.07), transparent 26%);
+  border-left: 1px solid rgba(167, 139, 250, 0.16);
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] [aria-selected='true'] {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 42px;
+  padding-right: 54px;
+  box-shadow:
+    inset 2px 0 0 var(--rizen-cyan),
+    inset 0 0 24px rgba(42, 127, 212, 0.08),
+    0 0 18px rgba(42, 127, 212, 0.08);
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] [aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 48px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--rizen-amber);
+  box-shadow: 0 0 8px rgba(190, 130, 40, 0.7);
+  transform: translateY(-50%);
+  animation: dsh-status-beacon 2.6s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] [aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+  background-image: url('/skin-assets/rizen-signal-mascot-sprite.webp');
+  background-repeat: no-repeat;
+  background-size: 400% 200%;
+  background-position: 0 0;
+  image-rendering: pixelated;
+  transform: translateY(-50%);
+  animation:
+    dsh-mascot-frames 1.8s infinite,
+    dsh-mascot-breathe 1.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] button:hover svg {
+  color: var(--rizen-cyan);
+  filter: drop-shadow(0 0 5px rgba(124, 231, 255, 0.72));
+}
+body:not([data-ds-dark-theme]) [class*='newSession'][aria-label='新建会话'] {
+  border: 1px solid rgba(42, 127, 212, 0.24);
+  background:
+    linear-gradient(135deg, rgba(42, 127, 212, 0.14), rgba(167, 139, 250, 0.16)),
+    rgba(17, 27, 55, 0.94);
+  box-shadow:
+    inset 0 0 16px rgba(42, 127, 212, 0.08),
+    0 0 18px rgba(42, 127, 212, 0.1);
+  transition:
+    background var(--ds-transition-duration) var(--ds-ease-in-out),
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) [class*='newSession'][aria-label='新建会话']:hover {
+  border-color: rgba(42, 127, 212, 0.6);
+  background:
+    linear-gradient(135deg, rgba(124, 231, 255, 0.24), rgba(167, 139, 250, 0.26)),
+    rgba(17, 27, 55, 0.98);
+  box-shadow:
+    inset 0 0 18px rgba(42, 127, 212, 0.14),
+    0 0 22px rgba(124, 231, 255, 0.24),
+    0 0 34px rgba(167, 139, 250, 0.16);
+  transform: translateY(-1px);
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']) {
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']):hover {
+  border-color: rgba(124, 231, 255, 0.24);
+  background-color: rgba(42, 127, 212, 0.08);
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label^='上下文已用'] {
+  border: 1px solid rgba(124, 231, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(17, 27, 55, 0.62);
+  box-shadow: 0 0 10px rgba(124, 231, 255, 0.12);
+  animation: dsh-context-ring 4.4s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button']) svg {
+  color: rgba(42, 110, 180, 0.85);
+  filter: drop-shadow(0 0 2px rgba(42, 127, 212, 0.24));
+  transition:
+    color var(--ds-transition-duration) var(--ds-ease-in-out),
+    filter var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button']):not(:disabled):hover svg {
+  color: var(--rizen-cyan);
+  filter:
+    drop-shadow(0 0 4px rgba(124, 231, 255, 0.82))
+    drop-shadow(0 0 10px rgba(167, 139, 250, 0.38));
+  transform: translateY(-1px) scale(1.08);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button']):focus-visible {
+  outline: 1px solid var(--rizen-cyan);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(42, 127, 212, 0.14), 0 0 18px rgba(167, 139, 250, 0.22);
+}
+body:not([data-ds-dark-theme]) [class*='sessionLogButton'],
+body:not([data-ds-dark-theme]) button[aria-label='2 个后台任务'] {
+  position: relative;
+  border-color: rgba(42, 127, 212, 0.24);
+  background-image: linear-gradient(135deg, rgba(124, 231, 255, 0.06), rgba(167, 139, 250, 0.1));
+}
+body:not([data-ds-dark-theme]) [class*='sessionLogButton']::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  background: url('/skin-assets/rizen-data-core-sprite.webp') no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  animation: dsh-core-frames 2.1s infinite;
+}
+body:not([data-ds-dark-theme]) button[aria-label='2 个后台任务']::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -7px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  background: url('/skin-assets/rizen-data-shard-sprite.webp') no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  animation: dsh-shard-frames 1.7s infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='tabActive'] {
+  position: relative;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='tabActive']::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -8px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  background: url('/skin-assets/rizen-data-shard-sprite.webp') no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  animation: dsh-shard-frames 1.7s infinite reverse;
+}
+body:not([data-ds-dark-theme]) [data-phase='hero'] [class*='headlineText'] {
+  color: var(--rizen-ink);
+  text-shadow:
+    0 0 10px rgba(42, 127, 212, 0.24),
+    0 0 24px rgba(110, 80, 200, 0.18);
+  animation: dsh-headline-pulse 5.2s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [role='tab'][aria-selected='true'] {
+  color: var(--rizen-cyan);
+  border-bottom-color: var(--rizen-cyan);
+  box-shadow: 0 4px 12px rgba(42, 127, 212, 0.14);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [class*='bubble'] {
+  border-color: rgba(124, 231, 255, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(42, 127, 212, 0.08),
+    0 0 18px rgba(167, 139, 250, 0.1),
+    0 2px 14px rgba(0, 0, 0, 0.12);
+  transition:
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [class*='bubble']:hover {
+  border-color: rgba(124, 231, 255, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(124, 231, 255, 0.18),
+    0 0 26px rgba(110, 80, 200, 0.18),
+    0 2px 14px rgba(0, 0, 0, 0.12);
+}
+body:not([data-ds-dark-theme]) .md-code-block {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(42, 127, 212, 0.05) 0 1px,
+    transparent 1px 4px
+  );
+  border-left-color: var(--rizen-violet);
+}
+body:not([data-ds-dark-theme]) :is(code, [class*='inlineCode']) {
+  color: var(--rizen-cyan-bright);
+  background-color: rgba(91, 140, 255, 0.13);
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea) {
+  background-color: rgba(252, 254, 255, 0.98);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(42, 127, 212, 0.05) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(90deg, rgba(42, 127, 212, 0.05) 0 1px, transparent 1px 16px);
+  background-size: 16px 16px;
+  box-shadow:
+    0 0 0 1px rgba(42, 127, 212, 0.3),
+    0 0 22px rgba(42, 127, 212, 0.16),
+    0 0 34px rgba(167, 139, 250, 0.1),
+    0 2px 16px rgba(0, 0, 0, 0.14);
+  position: relative;
+  overflow: hidden;
+  animation: dsh-composer-breathe 5.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(124, 231, 255, 0.7) 32%,
+    rgba(167, 139, 250, 0.78) 68%,
+    transparent 92%
+  );
+  background-size: 200% 100%;
+  animation: dsh-input-scan 3.6s linear infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息'] {
+  position: relative;
+  color: var(--rizen-cyan);
+  border-color: rgba(42, 127, 212, 0.5);
+  background: linear-gradient(135deg, rgba(124, 231, 255, 0.15), rgba(167, 139, 250, 0.24));
+  box-shadow:
+    0 0 0 1px rgba(250, 252, 255, 0.9),
+    0 0 14px rgba(42, 127, 212, 0.26),
+    0 0 28px rgba(167, 139, 250, 0.22),
+    inset 0 0 10px rgba(42, 127, 212, 0.14);
+  transition:
+    color var(--ds-transition-duration) var(--ds-ease-in-out),
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  background-image: url('/skin-assets/rizen-signal-mascot-sprite.webp');
+  background-repeat: no-repeat;
+  background-size: 400% 200%;
+  background-position: 0 0;
+  image-rendering: pixelated;
+  opacity: 0.9;
+  animation:
+    dsh-mascot-frames 1.8s infinite,
+    dsh-mascot-breathe 1.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息'] svg {
+  filter: drop-shadow(0 0 4px rgba(124, 231, 255, 0.88));
+  transition: transform var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']:not(:disabled):hover {
+  color: var(--rizen-cyan-bright);
+  border-color: rgba(182, 244, 255, 0.86);
+  box-shadow:
+    0 0 0 1px rgba(250, 252, 255, 0.9),
+    0 0 18px rgba(42, 127, 212, 0.44),
+    0 0 34px rgba(110, 80, 200, 0.3),
+    inset 0 0 12px rgba(42, 127, 212, 0.22);
+  transform: translateY(-1px);
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']:not(:disabled):hover svg {
+  transform: translateY(-1px);
+  filter:
+    drop-shadow(0 0 6px rgba(124, 231, 255, 1))
+    drop-shadow(0 0 12px rgba(167, 139, 250, 0.76));
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(button[aria-label='发送消息']:active) {
+  animation: dsh-send-burst 0.6s ease-out;
+}
+body:not([data-ds-dark-theme]) :is([role='dialog'], [role='menu'], [role='listbox']) {
+  background: rgba(252, 254, 255, 0.99);
+  border-color: rgba(42, 127, 212, 0.22);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 0 28px rgba(42, 127, 212, 0.12);
+}
+body:not([data-ds-dark-theme]) :is([role='dialog'], [role='menu'], [role='listbox']) :is(button, [role='button']):hover {
+  background-color: rgba(124, 231, 255, 0.09);
+}
+body:not([data-ds-dark-theme]) {
+  cursor: var(--rizen-crosshair-cursor) 32 32, crosshair;
+}
+body:not([data-ds-dark-theme]) :is(textarea, input, [contenteditable='true']) {
+  cursor: text;
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select) {
+  cursor: var(--rizen-crosshair-cursor) 32 32, pointer;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol'] {
+  position: relative;
+  isolation: isolate;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol']:has([role='dialog']) {
+  z-index: 1001;
+  overflow: visible;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol']::before {
+  content: '';
+  position: absolute;
+  top: 76px;
+  right: -36px;
+  width: 126px;
+  height: 126px;
+  pointer-events: none;
+  background: var(--rizen-scene-fx-atlas) no-repeat 0 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.16;
+  z-index: 0;
+  animation: dsh-sidebar-radar 12s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [class*='sidebarCol']::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  bottom: 86px;
+  width: 54px;
+  height: 54px;
+  pointer-events: none;
+  background: var(--rizen-particle-atlas) no-repeat 100% 100% / 400% 400%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.22;
+  z-index: 0;
+  animation: dsh-sidebar-particle 4.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow] {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(236, 230, 245, 0.74) 0%, rgba(233, 240, 250, 0.6) 44%, rgba(233, 240, 250, 0.34) 78%, rgba(233, 240, 250, 0.06) 100%),
+    radial-gradient(ellipse at 8% 12%, rgba(110, 80, 200, 0.12), transparent 34%),
+    radial-gradient(ellipse at 76% 82%, rgba(30, 160, 140, 0.1), transparent 38%),
+    repeating-linear-gradient(0deg, rgba(30, 160, 140, 0.03) 0 1px, transparent 1px 28px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 28px;
+  border-left: 1px solid rgba(110, 80, 200, 0.2);
+  box-shadow:
+    inset 18px 0 32px rgba(110, 80, 200, 0.08),
+    inset -32px 0 46px rgba(111, 255, 224, 0.05);
+  font-family: var(--dsw-font-pixel);
+}
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow-kind='assistant'],
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow-kind='assistant-step'] {
+  background: linear-gradient(90deg, rgba(230, 238, 249, 0.18), rgba(226, 220, 240, 0.1) 72%, transparent);
+}
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow] [class*='markdown'],
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow] [class*='markdown'] :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, blockquote, a, strong, em) {
+  font-family: var(--dsw-font-pixel) !important;
+}
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow] [class*='markdown'] :is(pre, code, .md-code-block, [class*='code']) {
+  font-family: var(--dsw-font-pixel-small) !important;
+}
+body:not([data-ds-dark-theme]) [data-phase] [data-chat-flow]::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: -64px;
+  width: 112px;
+  height: 112px;
+  pointer-events: none;
+  background: var(--rizen-scene-fx-atlas) no-repeat 100% 0 / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.1;
+  z-index: 0;
+  animation: dsh-transcript-landmark 18s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='user'] [class*='bubble'],
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='steering'] [class*='bubble'] {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 0;
+  clip-path: polygon(
+    0 10px,
+    10px 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+    100% calc(100% - 18px),
+    calc(100% - 13px) calc(100% - 18px),
+    calc(100% - 2px) 100%,
+    calc(100% - 28px) calc(100% - 8px),
+    14px 100%,
+    0 calc(100% - 14px)
+  );
+  background:
+    linear-gradient(135deg, rgba(226, 233, 246, 0.96), rgba(240, 246, 253, 0.96)) padding-box,
+    linear-gradient(135deg, rgba(124, 231, 255, 0.72), rgba(167, 139, 250, 0.46), rgba(240, 183, 102, 0.5)) border-box;
+  box-shadow:
+    0 0 0 1px rgba(42, 127, 212, 0.08),
+    0 0 24px rgba(42, 127, 212, 0.14),
+    0 8px 22px rgba(0, 0, 0, 0.1);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='user'] [class*='bubble']::after,
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='steering'] [class*='bubble']::after {
+  content: none;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='user'] [class*='bubble']:hover,
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='steering'] [class*='bubble']:hover {
+  box-shadow:
+    0 0 0 1px rgba(124, 231, 255, 0.2),
+    0 0 30px rgba(42, 127, 212, 0.22),
+    0 8px 22px rgba(0, 0, 0, 0.12);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='assistant'],
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='assistant-step'] {
+  position: relative;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='assistant']::before,
+body:not([data-ds-dark-theme]) [data-chat-flow-kind='assistant-step']::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: -10px;
+  width: 3px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, var(--rizen-cyan), var(--rizen-violet), transparent);
+  box-shadow: 0 0 12px rgba(124, 231, 255, 0.46);
+  opacity: 0.64;
+  animation: dsh-assistant-signal 3.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [data-tool] {
+  position: relative;
+  border: 1px solid rgba(124, 231, 255, 0.18);
+  border-radius: 0;
+  clip-path: polygon(0 7px, 7px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 10px 100%, 0 calc(100% - 10px));
+  background:
+    linear-gradient(90deg, rgba(244, 248, 253, 0.88), rgba(240, 246, 253, 0.66)),
+    repeating-linear-gradient(0deg, rgba(42, 127, 212, 0.05) 0 1px, transparent 1px 5px);
+  box-shadow: inset 3px 0 0 rgba(124, 231, 255, 0.48), 0 0 18px rgba(42, 127, 212, 0.08);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [data-tool]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  background: var(--rizen-particle-atlas) no-repeat 33.333% 0 / 400% 400%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.12;
+  transform: translateY(-50%);
+  animation: dsh-tool-particle 3.6s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [data-tool][data-state='running'] {
+  border-color: rgba(124, 231, 255, 0.42);
+  box-shadow:
+    inset 3px 0 0 var(--rizen-cyan),
+    0 0 22px rgba(42, 127, 212, 0.14),
+    0 0 36px rgba(167, 139, 250, 0.08);
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea) {
+  border-radius: 0;
+  clip-path: polygon(0 14px, 14px 0, calc(100% - 20px) 0, 100% 20px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 20px 100%, 0 calc(100% - 20px));
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea):has([role='menu'], [role='listbox'], [class*='menu']) {
+  z-index: 8;
+  overflow: visible;
+  clip-path: none;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea)::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: 22px;
+  width: 74px;
+  height: 74px;
+  pointer-events: none;
+  background: var(--rizen-scene-fx-atlas) no-repeat 66.666% 100% / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.1;
+  z-index: 0;
+  animation: dsh-composer-beacon 7s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  background: var(--rizen-energy-fx-atlas) no-repeat 0 0 / 400% 300%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']:not(:disabled):hover::after {
+  opacity: 0.56;
+  animation: dsh-energy-frames 1.2s steps(1, end) infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep']) {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: 5px 36px 4px;
+  border-top: 1px solid rgba(42, 127, 212, 0.26);
+  border-bottom: 1px solid rgba(167, 139, 250, 0.22);
+  color: rgba(38, 110, 180, 0.8);
+  font-family: var(--dsw-font-pixel-small);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 8px rgba(42, 127, 212, 0.24);
+  background:
+    linear-gradient(90deg, rgba(244, 248, 253, 0.94), rgba(233, 240, 250, 0.78), rgba(244, 248, 253, 0.94)),
+    repeating-linear-gradient(90deg, rgba(124, 231, 255, 0.04) 0 1px, transparent 1px 18px);
+  clip-path: polygon(0 5px, 5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px));
+  box-shadow: 0 0 18px rgba(42, 127, 212, 0.1), inset 0 0 18px rgba(124, 231, 255, 0.04);
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  background: var(--rizen-scene-fx-atlas) no-repeat 0 100% / 400% 200%;
+  image-rendering: pixelated;
+  mix-blend-mode: screen;
+  opacity: 0.16;
+  transform: translateY(-50%);
+  animation: dsh-hud-radar 5.2s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(124, 231, 255, 0.82), rgba(167, 139, 250, 0.74), transparent);
+  background-size: 220% 100%;
+  animation: dsh-hud-sweep 4.4s linear infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep']) [class*='sep'] {
+  color: rgba(240, 183, 102, 0.78);
+  text-shadow: 0 0 6px rgba(240, 183, 102, 0.42);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select) {
+  transition:
+    color var(--ds-transition-duration) var(--ds-ease-in-out),
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out),
+    filter var(--ds-transition-duration) var(--ds-ease-in-out),
+    transform var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select):not(:disabled):hover {
+  color: var(--rizen-cyan-bright);
+  filter:
+    drop-shadow(0 0 4px rgba(111, 255, 224, 0.64))
+    drop-shadow(0 0 10px rgba(255, 98, 189, 0.24));
+  transform: translateY(-1px);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select):not(:disabled):active {
+  color: var(--rizen-amber);
+  filter:
+    drop-shadow(0 0 6px rgba(255, 195, 107, 0.8))
+    drop-shadow(0 0 12px rgba(255, 98, 189, 0.34));
+  transform: translateY(1px) scale(0.97);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select):focus-visible {
+  outline: 1px solid var(--rizen-magenta);
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 3px rgba(255, 98, 189, 0.18),
+    0 0 18px rgba(210, 140, 255, 0.34);
+}
+body:not([data-ds-dark-theme]) :is(button, [role='button'], a, select):not(:disabled):hover svg {
+  color: var(--rizen-cyan);
+  filter:
+    drop-shadow(0 0 4px rgba(111, 255, 224, 0.9))
+    drop-shadow(0 0 9px rgba(255, 98, 189, 0.46));
+}
+body:not([data-ds-dark-theme]) [role='tab']:not([aria-selected='true']) {
+  position: relative;
+  overflow: hidden;
+}
+body:not([data-ds-dark-theme]) [role='tab']:not([aria-selected='true'])::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  bottom: 0;
+  left: 8px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--rizen-magenta), var(--rizen-amber), transparent);
+  opacity: 0;
+  transform: translateX(-120%);
+}
+body:not([data-ds-dark-theme]) [role='tab']:not([aria-selected='true']):hover::after {
+  opacity: 0.86;
+  animation: dsh-hover-scan 0.72s steps(5, end) both;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [class*='bubble']::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  width: 42%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--rizen-magenta), var(--rizen-amber), transparent);
+  opacity: 0;
+  transform: translateX(-130%);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [class*='bubble']:hover::before {
+  opacity: 0.9;
+  animation: dsh-bubble-scan 0.68s steps(6, end) both;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [class*='bubble']:hover :is(p, span, code) {
+  animation: dsh-text-glitch 0.48s steps(2, end) both;
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [data-tool]:hover {
+  border-color: rgba(255, 98, 189, 0.64);
+  box-shadow:
+    inset 3px 0 0 var(--rizen-magenta),
+    0 0 0 1px rgba(255, 98, 189, 0.14),
+    0 0 26px rgba(210, 140, 255, 0.2),
+    0 0 42px rgba(255, 195, 107, 0.1);
+}
+body:not([data-ds-dark-theme]) [data-chat-flow] [data-tool]:hover::before {
+  opacity: 0.34;
+  filter: drop-shadow(0 0 7px rgba(190, 130, 40, 0.7));
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea:focus, [contenteditable='true']:focus) {
+  border-color: rgba(255, 98, 189, 0.78);
+  box-shadow:
+    0 0 0 1px rgba(255, 98, 189, 0.28),
+    0 0 24px rgba(210, 140, 255, 0.3),
+    0 0 46px rgba(255, 195, 107, 0.14),
+    inset 0 0 24px rgba(111, 255, 224, 0.08);
+  animation: dsh-composer-focus 1.8s ease-in-out infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] [class*='card']:has(textarea:focus, [contenteditable='true']:focus)::after {
+  content: 'INPUT // DECODE 01';
+  top: 9px;
+  right: 18px;
+  bottom: auto;
+  left: auto;
+  width: 142px;
+  height: 12px;
+  color: rgba(190, 130, 40, 0.9);
+  font-family: var(--dsw-font-pixel-small);
+  font-size: 9px;
+  line-height: 12px;
+  letter-spacing: 0.8px;
+  text-align: right;
+  white-space: nowrap;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 98, 189, 0.75), rgba(111, 255, 224, 0.84), transparent) bottom / 220% 1px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 195, 107, 0.26) 0 1px, transparent 1px 5px);
+  text-shadow:
+    -2px 0 rgba(255, 98, 189, 0.72),
+    2px 0 rgba(111, 255, 224, 0.58),
+    0 0 8px rgba(190, 130, 40, 0.7);
+  opacity: 0.92;
+  animation: dsh-input-decode 0.92s steps(2, end) infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] :is(textarea, input, [contenteditable='true']):focus {
+  color: var(--rizen-cyan-bright);
+  caret-color: var(--rizen-magenta);
+  text-shadow:
+    -1px 0 rgba(255, 98, 189, 0.42),
+    1px 0 rgba(111, 255, 224, 0.36),
+    0 0 8px rgba(210, 140, 255, 0.28);
+}
+body:not([data-ds-dark-theme]) [data-phase] textarea:not(:placeholder-shown):focus {
+  animation: dsh-typed-glitch 4.6s steps(2, end) infinite;
+}
+body:not([data-ds-dark-theme]) [data-phase] :is(textarea, input, [contenteditable='true'])::selection {
+  color: var(--rizen-night);
+  background: rgba(255, 195, 107, 0.82);
+  text-shadow: none;
+}
+body:not([data-ds-dark-theme]) [data-phase] button[aria-label='发送消息']:active::after {
+  opacity: 1;
+  animation:
+    dsh-energy-frames 0.42s steps(1, end),
+    dsh-click-flash 0.42s ease-out;
+}
+body:not([data-ds-dark-theme]),
+  body:not([data-ds-dark-theme]) *,
+  body:not([data-ds-dark-theme]) *::before,
+  body:not([data-ds-dark-theme]) *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
