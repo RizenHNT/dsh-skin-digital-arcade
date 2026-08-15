@@ -1,6 +1,6 @@
 {
   "name": "dsh-skin-digital-arcade",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rizen Signal Console — digital arcade HUD skin for DeepSeek Harness Web GUI: neon cyan/violet/magenta palette, pixel fonts, animated HUD sprites, custom crosshair cursor",
   "type": "module",
   "main": "index.js",

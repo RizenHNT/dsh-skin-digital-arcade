@@ -52,7 +52,7 @@ function fakeRes() {
 // 2. Fonts must be served with font/woff2.
 {
   const res = fakeRes()
-  route.handler({ url: '/skin-assets/fonts/ark-pixel-16px-monospaced-latin.otf.woff2' }, res)
+  route.handler({ url: '/skin-assets/fonts/fusion-pixel-12px-latin.otf.woff2' }, res)
   assert.equal(res.status, 200)
   assert.equal(res.headers['Content-Type'], 'font/woff2')
 }
