@@ -1,0 +1,10 @@
+# Rizen Signal Console skin bundle patch: inserts the skin's host plugin
+# into the web composition. The plugin injects the skin stylesheet into the
+# served index.html (via webServer.tapIndex) and serves its assets from
+# /skin-assets/*. Install with:
+#   dsh plugin --profile web add <path-or-git-url>
+- insert:
+    - id: skin-digital-arcade
+      name: dsh-skin-digital-arcade
+      inject:
+        - webServer
