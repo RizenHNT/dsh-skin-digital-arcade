@@ -1132,10 +1132,11 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea) {
 }
 
 /* Menus open upward from the composer. The normal card shell clips its
-   decorative corners, but that would also clip the model/access popovers.
-   Relax the shell only while a popup exists and raise the whole control rail
-   above the transcript surface. */
-body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea):has([role='menu'], [role='listbox'], [class*='menu']) {
+   decorative corners, but that would also clip the model/access popovers and
+   the context-occupancy meter panel (a role=dialog). Relax the shell only
+   while a popup exists and raise the whole control rail above the transcript
+   surface. */
+body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea):has([role='menu'], [role='listbox'], [role='dialog'], [class*='menu']) {
   z-index: 8;
   overflow: visible;
   clip-path: none;
