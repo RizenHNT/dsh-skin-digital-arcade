@@ -203,6 +203,13 @@ body[data-ds-dark-theme] [class*='sidebarCol'] [class*='sectionLabel'] {
   font-family: var(--dsw-font-pixel);
 }
 
+/* Settings rows: option titles and their 12px descriptions share the pixel
+   face; both class suffixes are stable across the panel's CSS modules. */
+body[data-ds-dark-theme] [role='dialog'] [class$='_title'],
+body[data-ds-dark-theme] [role='dialog'] [class$='_desc'] {
+  font-family: var(--dsw-font-pixel);
+}
+
 /* The official editor renderer owns font, color, smoothing, and shadows.
    Only the caret color is themed, so composing text cannot ghost or emboss. */
 body[data-ds-dark-theme] [data-phase] textarea,
@@ -973,6 +980,12 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] [class*='markdown'] :is(h
 
 body[data-ds-dark-theme] [data-phase] [data-chat-flow] [class*='markdown'] :is(pre, code, .md-code-block, [class*='code']) {
   font-family: var(--dsw-font-pixel-small) !important;
+}
+
+/* Tables ride the same pixel face as the surrounding prose; the official
+   shorthand keeps 15px sizing, only the family is swapped. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] [class*='markdown'] :is(table, th, td) {
+  font-family: var(--dsw-font-pixel) !important;
 }
 
 /* The scene atlas is a restrained landmark in the open transcript space. It
