@@ -6,13 +6,9 @@ DeepSeek Harness Web GUI 的数码电玩风 HUD 皮肤（独立分发 bundle）�
 
 ## 预览
 
-| 暗色模式（主视觉） | 亮色模式（日间配色） |
+| 暗色模式 | 亮色模式 |
 |---|---|
 | ![dark](preview/preview-dark.png) | ![light](preview/preview-light.png) |
-
-> 皮肤以**暗色模式为设计重心**（霓虹 HUD、动画、精灵全部在暗色下呈现）。
-> 亮色模式提供同一套布局与像素字体的日间配色镜像（浅底 + 蓝青点缀），
-> 非暗色时自动生效。
 
 ## 交互反馈
 
@@ -97,14 +93,10 @@ node test-plugin.mjs
 
 # 重新生成 skin.css（可选：从 Harness 仓库的 personal.css 转换资源路径）
 python tools/gen-skin-css.py
-
-# 重新生成亮色镜像（可选：把暗色规则克隆为日间配色，追加到 skin.css 尾部）
-python tools/gen-light-mirror.py
 ```
 
 > `tools/gen-skin-css.py` 需要 Harness 源码树中的 `personal.css` 作为输入；
 > 对皮肤使用本仓库现成的 `skin.css` 无需运行它。
-> `tools/gen-light-mirror.py` 幂等运行（先清理旧的 LIGHT MIRROR 段再追加）。
 
 ## 许可
 
