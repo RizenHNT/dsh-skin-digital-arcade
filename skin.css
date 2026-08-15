@@ -220,6 +220,23 @@ body[data-ds-dark-theme] [data-time-hover-root] :is([class*='timeStart'], [class
   font-family: var(--dsw-font-pixel);
 }
 
+/* Sidebar session tree: workspace names, session titles, and status labels
+   ride the treeitem rows — pixel face for the whole tree. */
+body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'],
+body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'] :is(span, div) {
+  font-family: var(--dsw-font-pixel);
+}
+
+body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'] [class*='time'],
+body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'] [class*='status'] {
+  font-family: var(--dsw-font-pixel-small);
+  letter-spacing: 0.3px;
+}
+
+body[data-ds-dark-theme] [class*='sidebarCol'] [class*='sectionLabel'] {
+  font-family: var(--dsw-font-pixel);
+}
+
 /* The official editor renderer owns font, color, smoothing, and shadows.
    Only the caret color is themed, so composing text cannot ghost or emboss. */
 body[data-ds-dark-theme] [data-phase] textarea,
