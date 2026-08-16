@@ -1801,8 +1801,10 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
 }
 
 /* Think dossiers pin like code panels: viewport-fixed at the measured offset
-   with the transcript avoiding their rail. */
-body[data-ds-dark-theme] [data-phase] [data-variant='think'][data-dsh-panel-pinned='true'] [class*='thinkBody'] {
+   with the transcript avoiding their rail. This rule must out-specify the
+   inline left-rail dossier rule (assistant-step + :has + thinkBody), or the
+   pinned panel snaps back into the rail instead of floating. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step'][data-variant='think'][data-dsh-panel-pinned='true'] [class*='thinkBody'] {
   position: fixed;
   top: var(--dsh-panel-top, 120px);
   right: auto;
