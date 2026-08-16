@@ -1639,10 +1639,11 @@ body[data-ds-dark-theme] .dsh-click-hit::after {
   }
 }
 
-/* Docked code headers are the handle and the two explicit panel actions.
-   Keeping the pin/close targets above the code surface makes a pinned panel
-   reversible instead of turning the decoration into a permanent overlay. */
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle] {
+/* Docked headers are the handle and the explicit panel actions for every
+   floating detail surface (code, tool, think). Keeping the pin/min/max/close
+   targets above the surface makes a pinned panel reversible instead of
+   turning the decoration into a permanent overlay. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle] {
   position: relative;
   border-bottom: 1px solid rgba(124, 231, 255, 0.2);
   background:
@@ -1651,7 +1652,7 @@ body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handl
   color: rgba(182, 244, 255, 0.78);
 }
 
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle]::after {
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle]::after {
   content: '';
   position: absolute;
   right: 0;
@@ -1664,20 +1665,20 @@ body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handl
   animation: dsh-dock-sweep 3.4s linear infinite;
 }
 
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
   position: relative;
   z-index: 1;
 }
 
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label*='固定代码面板'],
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label='关闭代码面板'] {
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'],
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label='关闭面板'] {
   position: relative;
   z-index: 2;
   border: 1px solid transparent;
   color: rgba(182, 244, 255, 0.82);
 }
 
-body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label*='固定代码面板'][aria-pressed='true'] {
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'][aria-pressed='true'] {
   border-color: rgba(255, 195, 107, 0.62);
   color: var(--rizen-amber);
   filter: drop-shadow(0 0 6px rgba(255, 195, 107, 0.7));
@@ -1797,4 +1798,146 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Think dossiers pin like code panels: viewport-fixed at the measured offset
+   with the transcript avoiding their rail. */
+body[data-ds-dark-theme] [data-phase] [data-variant='think'][data-dsh-panel-pinned='true'] [class*='thinkBody'] {
+  position: fixed;
+  top: var(--dsh-panel-top, 120px);
+  right: auto;
+  left: var(--dsh-panel-left, -220px);
+  width: min(var(--dsh-panel-width, var(--dsh-detail-rail-width)), calc(100vw - 24px));
+  height: var(--dsh-panel-height, auto);
+  max-height: min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px)));
+  margin: 0;
+  z-index: 40;
+}
+
+/* Minimized panels park in the dock: hidden from the transcript until the
+   theme runtime restores them from the taskbar list. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-minimized='true'],
+body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-minimized='true'] {
+  display: none;
+}
+
+/* Maximized panels fill the viewport like a fullscreen window; the explicit
+   overrides win over the pinned rail rules while the window is enlarged. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
+body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
+  position: fixed !important;
+  inset: 10px !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  z-index: 500 !important;
+  overflow: auto;
+}
+
+/* Taskbar docks on both free flanks of the transcript. Each side holds a
+   stack button that opens the list of minimized panels parked there. */
+.rizen-dock {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 480;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 40, 0.94), rgba(8, 14, 31, 0.94)),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.05) 0 1px, transparent 1px 8px);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.1),
+    0 8px 22px rgba(0, 0, 0, 0.42),
+    0 0 18px rgba(124, 231, 255, 0.12);
+  font-family: var(--dsw-font-pixel);
+}
+
+.rizen-dock[data-side='left'] {
+  left: 288px;
+}
+
+.rizen-dock[data-side='right'] {
+  right: 12px;
+}
+
+.rizen-dock[data-empty='true'] {
+  display: none;
+}
+
+.rizen-dock-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid rgba(124, 231, 255, 0.32);
+  border-radius: 7px;
+  background: rgba(15, 26, 52, 0.92);
+  color: var(--rizen-cyan-bright);
+  font-family: var(--dsw-font-pixel);
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+.rizen-dock-button:hover,
+.rizen-dock-button[data-open='true'] {
+  border-color: rgba(255, 98, 189, 0.6);
+  color: var(--rizen-magenta);
+  box-shadow: 0 0 12px rgba(255, 98, 189, 0.25);
+}
+
+.rizen-dock-list {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 168px;
+  max-height: 320px;
+  padding: 6px;
+  overflow: auto;
+  border: 1px solid rgba(124, 231, 255, 0.35);
+  border-radius: 10px;
+  background: rgba(8, 15, 34, 0.97);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.12),
+    0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+.rizen-dock[data-side='left'] .rizen-dock-list {
+  left: calc(100% + 8px);
+}
+
+.rizen-dock[data-side='right'] .rizen-dock-list {
+  right: calc(100% + 8px);
+}
+
+.rizen-dock-item {
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--rizen-ink);
+  font-family: var(--dsw-font-pixel);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.rizen-dock-item:hover {
+  border-color: rgba(124, 231, 255, 0.4);
+  background: rgba(124, 231, 255, 0.08);
+  color: var(--rizen-cyan-bright);
 }
