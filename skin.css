@@ -226,32 +226,34 @@ body[data-ds-dark-theme] [class*='_frame'] {
 body[data-ds-dark-theme] [data-phase='hero'],
 body[data-ds-dark-theme] [data-phase='active'],
 body[data-ds-dark-theme] [data-phase='settling'] {
-  background: rgba(8, 13, 29, 0.88);
+  background: rgba(8, 13, 29, 0.72);
 }
 
-/* The conversation surface is a living HUD: a generated eight-frame arcade
-   city runs beneath a readable dark veil, with a separate scan beam and grid. */
+/* The scene stays visible behind the transcript. A quiet veil and two soft
+   color pools preserve contrast without turning the conversation into a hard
+   rectangular mask. */
 body[data-ds-dark-theme] [data-phase='hero'],
 body[data-ds-dark-theme] [data-phase='active'],
 body[data-ds-dark-theme] [data-phase='settling'] {
   background-image:
-    linear-gradient(180deg, rgba(255, 98, 189, 0.16) 0%, rgba(12, 9, 32, 0.5) 24%, rgba(255, 195, 107, 0.08) 66%, rgba(7, 14, 31, 0.74) 100%),
+    linear-gradient(180deg, rgba(8, 13, 29, 0.12) 0%, rgba(8, 13, 29, 0.2) 46%, rgba(7, 14, 31, 0.56) 100%),
     url('/skin-assets/rizen-arcade-background.webp'),
-    linear-gradient(112deg, transparent 0 38%, rgba(255, 98, 189, 0.1) 45%, rgba(255, 195, 107, 0.12) 51%, rgba(111, 255, 224, 0.09) 56%, transparent 64%),
-    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.025) 0 1px, transparent 1px 36px),
-    repeating-linear-gradient(90deg, rgba(124, 231, 255, 0.025) 0 1px, transparent 1px 36px),
-    radial-gradient(circle at 18% 16%, rgba(124, 231, 255, 0.1), transparent 22%),
-    radial-gradient(circle at 88% 78%, rgba(167, 139, 250, 0.1), transparent 26%);
-  background-position: 0 0, center center, -140% 0, 0 0, 0 0, 0 0, 0 0;
-  background-size: 100% 100%, cover, 260% 100%, 36px 36px, 36px 36px, 100% 100%, 100% 100%;
-  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat, no-repeat;
-  animation: dsh-phase-signal 18s linear infinite;
+    radial-gradient(circle at 18% 16%, rgba(124, 231, 255, 0.07), transparent 22%),
+    radial-gradient(circle at 88% 78%, rgba(167, 139, 250, 0.07), transparent 26%);
+  background-position: 0 0, center center, 0 0, 0 0;
+  background-size: 100% 100%, cover, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  animation: dsh-phase-signal 36s ease-in-out infinite;
 }
 
 body[data-ds-dark-theme] [data-phase='hero'],
 body[data-ds-dark-theme] [data-phase='active'],
 body[data-ds-dark-theme] [data-phase='settling'] {
   position: relative;
+  --dsh-detail-rail-width: 236px;
+  --dsh-detail-rail-min-width: 196px;
+  --dsh-detail-rail-max-width: min(520px, calc(100vw - 24px));
+  --dsh-detail-rail-gap: 18px;
 }
 
 /* Two low-opacity HUD sprites live in unused breathing room on the right of
@@ -315,15 +317,15 @@ body[data-ds-dark-theme] [data-phase='settling']::after {
 
 @keyframes dsh-phase-signal {
   0% {
-    background-position: 0 0, center center, -140% 0, 0 0, 0 0, 0 0, 0 0;
+    background-position: 0 0, center center, 0 0, 0 0;
   }
 
   50% {
-    background-position: 0 0, center center, 0% 0, 18px 18px, -18px 10px, 0 0, 0 0;
+    background-position: 0 0, center center, 8px -6px, -8px 8px;
   }
 
   100% {
-    background-position: 0 0, center center, 140% 0, 36px 36px, -36px 20px, 0 0, 0 0;
+    background-position: 0 0, center center, 0 0, 0 0;
   }
 }
 
@@ -952,24 +954,78 @@ body[data-ds-dark-theme] [class*='sidebarCol']::after {
 body[data-ds-dark-theme] [data-phase] [data-chat-flow] {
   position: relative;
   isolation: isolate;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 18px 30px clamp(144px, 20vh, 176px) 32px;
   background:
-    linear-gradient(90deg, rgba(25, 17, 48, 0.74) 0%, rgba(15, 22, 46, 0.6) 44%, rgba(12, 25, 46, 0.34) 78%, rgba(12, 25, 46, 0.06) 100%),
-    radial-gradient(ellipse at 8% 12%, rgba(210, 140, 255, 0.13), transparent 34%),
-    radial-gradient(ellipse at 76% 82%, rgba(111, 255, 224, 0.09), transparent 38%),
-    repeating-linear-gradient(0deg, rgba(111, 255, 224, 0.022) 0 1px, transparent 1px 28px);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 28px;
-  border-left: 1px solid rgba(210, 140, 255, 0.24);
+    radial-gradient(ellipse at 50% 36%, rgba(10, 17, 38, 0.66), rgba(10, 17, 38, 0.42) 58%, rgba(10, 17, 38, 0.12) 88%, transparent 100%),
+    linear-gradient(180deg, rgba(8, 14, 31, 0.46), rgba(8, 15, 33, 0.3) 58%, rgba(8, 15, 33, 0.18)),
+    radial-gradient(ellipse at 8% 12%, rgba(210, 140, 255, 0.08), transparent 34%),
+    radial-gradient(ellipse at 76% 82%, rgba(111, 255, 224, 0.06), transparent 38%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  border: 1px solid rgba(124, 231, 255, 0.12);
+  border-radius: 16px;
   box-shadow:
-    inset 18px 0 32px rgba(210, 140, 255, 0.08),
-    inset -32px 0 46px rgba(111, 255, 224, 0.05);
+    inset 0 0 30px rgba(210, 140, 255, 0.04),
+    0 12px 34px rgba(0, 0, 0, 0.12);
   font-family: var(--dsw-font-pixel);
+  transition: transform 220ms ease;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind] {
+  box-sizing: border-box;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Give long turns and tool rows a readable cadence. The margins stay inside
+   the transcript column and do not change the composer or sidebar geometry. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step'] {
+  margin-block: 8px;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call'] {
+  margin-block: 6px;
+}
+
+/* The composer stack is sticky with the input seat. Keep the veil attached to
+   that stack instead of the viewport, so it follows the conversation scroll
+   and never becomes a full-page mask. */
+body[data-ds-dark-theme] [data-phase] [class*='composerStack'] {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+}
+
+body[data-ds-dark-theme] [data-phase] [class*='composerStack']::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: calc(100% - 1px);
+  left: 0;
+  height: clamp(68px, 11vh, 92px);
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(8, 13, 29, 0.34) 46%, rgba(8, 13, 29, 0.92) 100%);
+  z-index: 0;
+}
+
+body[data-ds-dark-theme] [data-phase] [class*='composerStack'] [class*='card'] {
+  position: relative;
+  z-index: 1;
+}
+
+/* An open disclosure uses the unused left rail. The main transcript shifts
+   as one surface so the detail card never sits on top of readable prose. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-disclosure-row][aria-expanded='true']),
+body[data-ds-dark-theme] [data-phase]:has([class*='NjBokG_panel']) [data-chat-flow] {
+  transform: translateX(132px);
 }
 
 /* Assistant replies stay visually connected, but the text gets a quiet
    local scrim so the city scene never competes with a long paragraph. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant'],
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step'] {
-  background: linear-gradient(90deg, rgba(16, 21, 44, 0.18), rgba(32, 19, 52, 0.1) 72%, transparent);
+  background: linear-gradient(90deg, rgba(12, 19, 41, 0.42), rgba(24, 20, 48, 0.2) 72%, transparent);
 }
 
 /* Markdown owns its own font shorthand, so the conversation root alone is
@@ -996,9 +1052,9 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow]::before {
   content: '';
   position: absolute;
   top: 22px;
-  right: -64px;
-  width: 112px;
-  height: 112px;
+  right: 16px;
+  width: 80px;
+  height: 80px;
   pointer-events: none;
   background: var(--rizen-scene-fx-atlas) no-repeat 100% 0 / 400% 200%;
   image-rendering: pixelated;
@@ -1014,25 +1070,168 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow]::before {
   50% { transform: translate3d(-22px, 30px, 0) rotate(12deg); opacity: 0.16; }
 }
 
+/* Think details become a compact left-side dossier while the disclosure row
+   remains in the transcript as the control and summary. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) {
+  z-index: 3;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) [class*='thinkBody'] {
+  position: absolute;
+  top: 0;
+  right: calc(100% + var(--dsh-detail-rail-gap));
+  width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
+  height: var(--dsh-panel-height, auto);
+  max-height: min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px)));
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 14px 16px;
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(8, 18, 40, 0.96), rgba(15, 22, 47, 0.9)),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.04) 0 1px, transparent 1px 6px);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(124, 231, 255, 0.1);
+  z-index: 4;
+}
+
+/* Tool output uses the same rail, while its disclosure header stays in the
+   main stream. The sibling selector targets the existing body wrapper without
+   depending on generated class names. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([data-disclosure-row][aria-expanded='true']) [data-tool] {
+  z-index: 3;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([data-disclosure-row][aria-expanded='true']) [data-tool] > div > [data-disclosure-row] ~ div {
+  position: absolute;
+  top: 30px;
+  right: calc(100% + var(--dsh-detail-rail-gap));
+  width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
+  height: var(--dsh-panel-height, auto);
+  max-height: min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px)));
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(8, 18, 40, 0.98), rgba(14, 22, 47, 0.92)),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.04) 0 1px, transparent 1px 6px);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(124, 231, 255, 0.1);
+  z-index: 4;
+}
+
+/* A pinned code panel keeps its measured viewport position while the
+   transcript avoids its rail. The flow is the containing block for this
+   fixed child, so the React panel stores coordinates relative to the flow
+   before pinning; this keeps it stable when the left rail opens. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-pinned='true'] > div > [data-disclosure-row] ~ div {
+  position: fixed;
+  top: var(--dsh-panel-top, 120px);
+  right: auto;
+  left: var(--dsh-panel-left, -220px);
+  width: min(var(--dsh-panel-width, var(--dsh-detail-rail-width)), calc(100vw - 24px));
+  height: var(--dsh-panel-height, auto);
+  max-height: min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px)));
+  margin: 0;
+  transform: none;
+  z-index: 40;
+}
+
+/* Expanded detail surfaces size through the theme runtime's window-style
+   resize drag: width/height come from CSS variables set while the pointer
+   drags an edge or corner, with the browser keeping min/max guards. The
+   safe-height observer limits their vertical surface above the sticky
+   composer, while overflow keeps long code and Think text inside the panel. */
+body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail-panel], [data-dsh-code-panel]) {
+  box-sizing: border-box;
+  min-width: var(--dsh-detail-rail-min-width);
+  max-width: calc(100vw - 24px);
+  overflow: auto;
+}
+
+body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail-panel], [data-dsh-code-panel])::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  background: linear-gradient(135deg, transparent 0 45%, rgba(124, 231, 255, 0.72) 46% 54%, transparent 55% 66%, rgba(255, 98, 189, 0.74) 67% 75%, transparent 76%);
+  opacity: 0.58;
+}
+
+/* A pinned panel's rail is reserved live: the theme runtime mirrors the
+   widest pinned panel width per side into --dsh-flow-avoid-*, so the flow
+   yields exactly what the panel occupies (plus the rail gap) while it is
+   dragged or resized, without ever changing the conversation's own size. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='left']) {
+  transform: translateX(var(--dsh-flow-avoid-left, 0px));
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='right']) {
+  transform: translateX(calc(-1 * var(--dsh-flow-avoid-right, 0px)));
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='left']):has([data-dsh-panel-pinned='true'][data-dsh-panel-side='right']) {
+  transform: translateX(0);
+}
+
+/* Multiple pinned cards share the same rail without changing the normal
+   message width. Their local drag offsets determine the final vertical
+   stack, while the rail-safe transcript remains readable between them. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-pinned='true'] [data-dsh-code-panel] {
+  border-color: rgba(255, 98, 189, 0.48);
+  box-shadow:
+    0 0 0 1px rgba(255, 98, 189, 0.12),
+    0 14px 32px rgba(0, 0, 0, 0.48),
+    0 0 28px rgba(210, 140, 255, 0.18);
+}
+
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-dragging='true'] [data-dsh-code-panel] {
+  cursor: grabbing;
+  user-select: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 195, 107, 0.34),
+    0 18px 42px rgba(0, 0, 0, 0.56),
+    0 0 38px rgba(255, 98, 189, 0.24);
+}
+
+/* The existing context-meter panel already contains the live used/capacity
+   projection. Move that real panel into the left rail when it is opened. */
+body[data-ds-dark-theme] [data-phase] [class*='NjBokG_panel'] {
+  position: fixed;
+  top: auto;
+  right: auto;
+  bottom: clamp(140px, 22vh, 210px);
+  left: max(288px, calc(18vw + 8px));
+  width: var(--dsh-detail-rail-width);
+  max-height: min(420px, calc(100vh - 220px));
+  overflow: auto;
+  border: 1px solid rgba(124, 231, 255, 0.32);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.1),
+    0 12px 28px rgba(0, 0, 0, 0.42),
+    0 0 28px rgba(124, 231, 255, 0.12);
+  z-index: 20;
+}
+
 /* User and steering messages become angular game dialogue panels instead of
    generic rounded cards. The clipped corners preserve the existing width. */
 body[data-ds-dark-theme] [data-chat-flow-kind='user'] [class*='bubble'],
 body[data-ds-dark-theme] [data-chat-flow-kind='steering'] [class*='bubble'] {
   position: relative;
   border: 1px solid transparent;
-  border-radius: 0;
-  clip-path: polygon(
-    0 10px,
-    10px 0,
-    calc(100% - 16px) 0,
-    100% 16px,
-    100% calc(100% - 18px),
-    calc(100% - 13px) calc(100% - 18px),
-    calc(100% - 2px) 100%,
-    calc(100% - 28px) calc(100% - 8px),
-    14px 100%,
-    0 calc(100% - 14px)
-  );
+  border-radius: 10px;
+  clip-path: none;
   background:
     linear-gradient(135deg, rgba(23, 35, 74, 0.96), rgba(14, 22, 47, 0.96)) padding-box,
     linear-gradient(135deg, rgba(124, 231, 255, 0.72), rgba(167, 139, 250, 0.46), rgba(240, 183, 102, 0.5)) border-box;
@@ -1058,16 +1257,19 @@ body[data-ds-dark-theme] [data-chat-flow-kind='steering'] [class*='bubble']:hove
 body[data-ds-dark-theme] [data-chat-flow-kind='assistant'],
 body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step'] {
   position: relative;
+  padding-left: 18px;
+  padding-right: 10px;
+  border-radius: 8px;
 }
 
 body[data-ds-dark-theme] [data-chat-flow-kind='assistant']::before,
 body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step']::before {
   content: '';
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: -10px;
-  width: 3px;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 2px;
   pointer-events: none;
   background: linear-gradient(180deg, transparent, var(--rizen-cyan), var(--rizen-violet), transparent);
   box-shadow: 0 0 12px rgba(124, 231, 255, 0.46);
@@ -1085,9 +1287,13 @@ body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step']::before {
    ownership of layout and disclosure behavior; this only adds the HUD shell. */
 body[data-ds-dark-theme] [data-chat-flow] [data-tool] {
   position: relative;
+  box-sizing: border-box;
+  margin-left: 18px;
+  margin-right: 10px;
+  padding-left: 12px;
   border: 1px solid rgba(124, 231, 255, 0.18);
-  border-radius: 0;
-  clip-path: polygon(0 7px, 7px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 10px 100%, 0 calc(100% - 10px));
+  border-radius: 8px;
+  clip-path: none;
   background:
     linear-gradient(90deg, rgba(8, 18, 40, 0.88), rgba(14, 22, 47, 0.66)),
     repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.045) 0 1px, transparent 1px 5px);
@@ -1354,10 +1560,6 @@ body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']:hover::before {
   animation: dsh-bubble-scan 0.68s steps(6, end) both;
 }
 
-body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']:hover :is(p, span, code) {
-  animation: dsh-text-glitch 0.48s steps(2, end) both;
-}
-
 body[data-ds-dark-theme] [data-chat-flow] [data-tool]:hover {
   border-color: rgba(255, 98, 189, 0.64);
   box-shadow:
@@ -1372,9 +1574,123 @@ body[data-ds-dark-theme] [data-chat-flow] [data-tool]:hover::before {
   filter: drop-shadow(0 0 7px rgba(255, 195, 107, 0.72));
 }
 
-/* Focus is the input's boot-up state. The small status label and chromatic
-   text-shadow provide the requested scan/乱码 moment without rewriting the
-   user's actual text or moving the editor's layout. */
+/* Pointer feedback is placed by the theme runtime at the actual click point,
+   so the crosshair reads as an arcade hit rather than a button-only ripple. */
+body[data-ds-dark-theme] .dsh-click-hit {
+  position: fixed;
+  z-index: 2000;
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 195, 107, 0.84);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 195, 107, 0.34) 0 2px, transparent 3px 12px, rgba(111, 255, 224, 0.24) 13px 14px, transparent 15px),
+    conic-gradient(from 12deg, transparent 0 8%, rgba(255, 98, 189, 0.92) 9% 11%, transparent 12% 33%, rgba(111, 255, 224, 0.9) 34% 36%, transparent 37% 66%, rgba(255, 195, 107, 0.88) 67% 69%, transparent 70%);
+  box-shadow:
+    0 0 0 2px rgba(255, 98, 189, 0.18),
+    0 0 16px rgba(255, 195, 107, 0.64),
+    0 0 34px rgba(255, 98, 189, 0.42);
+  animation: dsh-hit-fire 0.56s steps(5, end) both;
+}
+
+body[data-ds-dark-theme] .dsh-click-hit::before,
+body[data-ds-dark-theme] .dsh-click-hit::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  background: var(--rizen-cyan);
+  box-shadow: 0 0 8px rgba(111, 255, 224, 0.88);
+}
+
+body[data-ds-dark-theme] .dsh-click-hit::before {
+  top: 50%;
+  right: -9px;
+  left: -9px;
+  height: 1px;
+}
+
+body[data-ds-dark-theme] .dsh-click-hit::after {
+  top: -9px;
+  bottom: -9px;
+  left: 50%;
+  width: 1px;
+}
+
+@keyframes dsh-hit-fire {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.28) rotate(-18deg);
+    filter: brightness(1.8) saturate(1.8);
+  }
+  28% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.92) rotate(10deg);
+  }
+  62% {
+    opacity: 0.82;
+    transform: translate(-50%, -50%) scale(1.12) rotate(28deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.42) rotate(52deg);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+/* Docked code headers are the handle and the two explicit panel actions.
+   Keeping the pin/close targets above the code surface makes a pinned panel
+   reversible instead of turning the decoration into a permanent overlay. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle] {
+  position: relative;
+  border-bottom: 1px solid rgba(124, 231, 255, 0.2);
+  background:
+    linear-gradient(90deg, rgba(255, 98, 189, 0.1), rgba(124, 231, 255, 0.05) 62%, transparent),
+    repeating-linear-gradient(90deg, rgba(124, 231, 255, 0.05) 0 1px, transparent 1px 12px);
+  color: rgba(182, 244, 255, 0.78);
+}
+
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle]::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--rizen-magenta), var(--rizen-cyan), transparent);
+  background-size: 220% 100%;
+  animation: dsh-dock-sweep 3.4s linear infinite;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
+  position: relative;
+  z-index: 1;
+}
+
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label*='固定代码面板'],
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label='关闭代码面板'] {
+  position: relative;
+  z-index: 2;
+  border: 1px solid transparent;
+  color: rgba(182, 244, 255, 0.82);
+}
+
+body[data-ds-dark-theme] [data-phase] [data-dsh-code-panel] button[aria-label*='固定代码面板'][aria-pressed='true'] {
+  border-color: rgba(255, 195, 107, 0.62);
+  color: var(--rizen-amber);
+  filter: drop-shadow(0 0 6px rgba(255, 195, 107, 0.7));
+}
+
+@keyframes dsh-dock-sweep {
+  from { background-position: 220% 0; }
+  to { background-position: -220% 0; }
+}
+
+/* Focus is the input's boot-up state. The small status label and composer
+   glow provide feedback without rewriting the user's actual text or moving
+   the editor's layout. */
 body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea:focus, [contenteditable='true']:focus) {
   border-color: rgba(255, 98, 189, 0.78);
   box-shadow:
@@ -1412,16 +1728,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea:focus, [conte
 }
 
 body[data-ds-dark-theme] [data-phase] :is(textarea, input, [contenteditable='true']):focus {
-  color: var(--rizen-cyan-bright);
   caret-color: var(--rizen-magenta);
-  text-shadow:
-    -1px 0 rgba(255, 98, 189, 0.42),
-    1px 0 rgba(111, 255, 224, 0.36),
-    0 0 8px rgba(210, 140, 255, 0.28);
-}
-
-body[data-ds-dark-theme] [data-phase] textarea:not(:placeholder-shown):focus {
-  animation: dsh-typed-glitch 4.6s steps(2, end) infinite;
 }
 
 body[data-ds-dark-theme] [data-phase] :is(textarea, input, [contenteditable='true'])::selection {
@@ -1450,24 +1757,6 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
   100% { transform: translateX(130%) scaleX(0.4); }
 }
 
-@keyframes dsh-text-glitch {
-  0%, 100% {
-    opacity: 1;
-    text-shadow: none;
-  }
-  18% {
-    opacity: 0.72;
-    letter-spacing: 0.06em;
-    text-shadow: -2px 0 rgba(255, 98, 189, 0.86), 2px 0 rgba(111, 255, 224, 0.82);
-  }
-  34% {
-    opacity: 0.96;
-    letter-spacing: 0;
-    text-shadow: 2px 0 rgba(255, 195, 107, 0.76), -1px 0 rgba(210, 140, 255, 0.84);
-  }
-  52% { opacity: 0.62; text-shadow: -3px 0 rgba(255, 98, 189, 0.6), 3px 0 rgba(111, 255, 224, 0.58); }
-}
-
 @keyframes dsh-composer-focus {
   0%, 100% {
     box-shadow:
@@ -1490,18 +1779,6 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
   18% { opacity: 1; clip-path: inset(0 28% 0 0); transform: translateX(-2px); }
   38% { opacity: 0.58; clip-path: inset(0 0 0 14%); transform: translateX(1px); }
   64% { opacity: 0.96; clip-path: inset(0 46% 0 0); transform: translateX(-1px); }
-}
-
-@keyframes dsh-typed-glitch {
-  0%, 92%, 100% {
-    text-shadow:
-      -1px 0 rgba(255, 98, 189, 0.38),
-      1px 0 rgba(111, 255, 224, 0.32),
-      0 0 8px rgba(210, 140, 255, 0.22);
-  }
-  93% { text-shadow: -3px 0 rgba(255, 98, 189, 0.78), 3px 0 rgba(111, 255, 224, 0.74); }
-  94% { text-shadow: 2px 0 rgba(255, 195, 107, 0.72), -2px 0 rgba(210, 140, 255, 0.76); }
-  95% { text-shadow: -1px 0 rgba(255, 98, 189, 0.38), 1px 0 rgba(111, 255, 224, 0.32); }
 }
 
 @keyframes dsh-click-flash {
