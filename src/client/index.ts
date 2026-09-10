@@ -12,6 +12,21 @@
  */
 
 /**
+ * Every surface the window runtime treats as a floating window: the portalled
+ * detail panels (Think, tool output, Code) and any in-flow code block the user
+ * has detached. One constant keeps the installers from disagreeing about what a
+ * window is; adding a surface means editing this line only.
+ */
+const WINDOW_SELECTOR = '[data-dsh-detail-panel], [class*="thinkBody"], [data-dsh-code-floating]'
+
+/** The same surfaces, restricted to the ones parked in the dock. */
+const WINDOW_MINIMIZED_SELECTOR = [
+  '[data-dsh-detail-panel][data-dsh-panel-minimized="true"]',
+  '[class*="thinkBody"][data-dsh-panel-minimized="true"]',
+  '[data-dsh-code-floating][data-dsh-panel-minimized="true"]',
+].join(', ')
+
+/**
  * Add a short-lived hit marker at primary pointer clicks while the personal
  * arcade theme is active. Editable controls are excluded so placing a caret
  * never creates a combat effect over the text being composed.
@@ -61,7 +76,7 @@ function installArcadePanelLayout(): () => void {
     // sit: deriving it from the window's own top made dragging a window
     // downward shrink it. Placement keeps the composer clear instead.
     const safeHeight = `${Math.max(RESIZE_MIN_HEIGHT, Math.round(composerTop - PANEL_TOP_FLOOR - PANEL_GAP))}px`
-    const panels = document.querySelectorAll<HTMLElement>('[data-dsh-detail-panel], [data-dsh-code-panel]')
+    const panels = document.querySelectorAll<HTMLElement>(WINDOW_SELECTOR)
     for (const panel of panels) {
       const rect = panel.getBoundingClientRect()
       // A hidden or maximized panel owns its geometry: the maximized rule
@@ -103,7 +118,7 @@ function installArcadePanelLayout(): () => void {
     resizeObserver?.disconnect()
     const composer = document.querySelector<HTMLElement>("[data-phase] [class*='composerSeat']")
     if (composer !== null) resizeObserver?.observe(composer)
-    for (const panel of document.querySelectorAll<HTMLElement>('[data-dsh-detail-panel], [data-dsh-code-panel]')) {
+    for (const panel of document.querySelectorAll<HTMLElement>(WINDOW_SELECTOR)) {
       resizeObserver?.observe(panel)
     }
   }
@@ -169,9 +184,10 @@ let topPanelZ = PANEL_BASE_Z
  */
 function floatingWindows(): HTMLElement[] {
   const out: HTMLElement[] = []
-  for (const panel of document.querySelectorAll<HTMLElement>('[data-dsh-detail-panel], [class*="thinkBody"]')) {
+  for (const panel of document.querySelectorAll<HTMLElement>(WINDOW_SELECTOR)) {
     if (panel.hasAttribute('data-dsh-panel-minimized')) continue
-    const floats = panel.closest('[data-dsh-detail-overlay-root]') !== null
+    const floats = panel.hasAttribute('data-dsh-code-floating')
+      || panel.closest('[data-dsh-detail-overlay-root]') !== null
       || panel.closest('[data-dsh-panel-pinned="true"]') !== null
     if (floats) out.push(panel)
   }
@@ -217,16 +233,18 @@ interface ResizeDrag {
   north: boolean
 }
 
-/** The surfaces that accept a window-style resize drag: pinned code panels,
- *  Think dossiers, and tool detail rails. Inline (unpinned) code bodies stay
- *  in the message flow and keep their natural width. */
+/** The surfaces that accept a window-style resize drag: a detached code block,
+ *  a Think dossier, a portalled tool detail, or a pinned code panel. Inline code
+ *  bodies stay in the message flow and keep their natural width. */
 function resizablePanel(target: Element): HTMLElement | null {
   if (typeof window !== 'undefined' && window.innerWidth <= MOBILE_BREAKPOINT) return null
-  const panel = target.closest<HTMLElement>('[data-dsh-detail-panel], [class*="thinkBody"]')
+  const panel = target.closest<HTMLElement>(WINDOW_SELECTOR)
   if (panel === null) return null
   // A maximized window is placed by the stylesheet band above the composer;
   // an edge drag would fight that placement and leave a stale user size.
   if (panel.hasAttribute('data-dsh-panel-maximized')) return null
+  // A surface the user already detached is a window and takes an edge drag.
+  if (panel.hasAttribute('data-dsh-code-floating')) return panel
   if (panel.matches('[class*="thinkBody"]')) return panel
   if (panel.closest('[data-dsh-detail-overlay-root]') !== null) return panel
   if (panel.getAttribute('data-dsh-detail-panel') === 'tool') return panel
@@ -268,7 +286,10 @@ function installArcadePanelResize(): () => void {
     if (event.button !== 0) return
     const target = event.target
     if (!(target instanceof Element)) return
-    if (target.closest('button, [data-dsh-drag-handle], textarea, input, a') !== null) return
+    // A detachable code block's banner is its toggle and drag handle, and it
+    // sits inside the block's top edge: yielding it keeps the two gestures from
+    // claiming the same press.
+    if (target.closest('button, [data-dsh-drag-handle], [class*="bannerWrap"], textarea, input, a') !== null) return
     const panel = resizablePanel(target)
     if (panel === null) return
     const rect = panel.getBoundingClientRect()
@@ -392,7 +413,7 @@ function installArcadePanelFocus(): () => void {
     if (event.button !== 0) return
     const target = event.target
     if (!(target instanceof Element)) return
-    const panel = target.closest<HTMLElement>('[data-dsh-detail-panel], [class*="thinkBody"]')
+    const panel = target.closest<HTMLElement>(WINDOW_SELECTOR)
     if (panel === null) return
     raisePanel(panel)
   }
@@ -458,9 +479,7 @@ function installArcadeWindowChrome(): () => void {
 
   const minimizedPanels = (side: 'left' | 'right'): HTMLElement[] => {
     const out: HTMLElement[] = []
-    for (const panel of document.querySelectorAll<HTMLElement>(
-      '[data-dsh-detail-panel][data-dsh-panel-minimized="true"], [class*="thinkBody"][data-dsh-panel-minimized="true"]',
-    )) {
+    for (const panel of document.querySelectorAll<HTMLElement>(WINDOW_MINIMIZED_SELECTOR)) {
       // A panel whose attribute was set directly (not via a command) has no
       // recorded side; park it on the default left rail.
       const panelSide = entries.get(panel)?.side ?? 'left'
@@ -516,7 +535,7 @@ function installArcadeWindowChrome(): () => void {
   const onCommand = (event: Event): void => {
     const target = event.target
     if (!(target instanceof Element)) return
-    const panel = target.closest<HTMLElement>('[data-dsh-detail-panel], [class*="thinkBody"]')
+    const panel = target.closest<HTMLElement>(WINDOW_SELECTOR)
     if (panel === null) return
     const command = (event as CustomEvent).detail as { command?: string } | undefined
     if (command?.command === 'minimize') {
@@ -598,7 +617,7 @@ function installArcadePanelBodyDrag(): () => void {
     // Panel prose and tool output stay selectable: a press that lands on
     // readable content is a text gesture, not a window move.
     if (target.closest('button, [data-dsh-drag-handle], textarea, input, a, pre, code, [data-dsh-content-area], [class*="code"]') !== null) return
-    const panel = target.closest<HTMLElement>('[data-dsh-detail-panel], [class*="thinkBody"]')
+    const panel = target.closest<HTMLElement>(WINDOW_SELECTOR)
     if (panel === null) return
     const rect = panel.getBoundingClientRect()
     if (rect.width === 0 || rect.height === 0) return
@@ -702,9 +721,98 @@ function installArcadePanelBodyDrag(): () => void {
 }
 
 /**
- * Every installer this runtime owns, in install order. The skin plugin mounts
- * the same roster standalone, so the list lives inside the extracted block.
+ * Let a fenced code block in the reply detach into a floating window, and move
+ * it again once detached. The block's banner is both the toggle and the drag
+ * handle: a press that never moves toggles the window, a press that moves drags
+ * it. The banner is the only control surface a code block has, and it sits in
+ * the block's top edge, so the resize installer stands off it entirely.
+ *
+ * Nothing is injected into React's tree — the state rides an attribute the
+ * stylesheet reads — because a node added to a managed subtree would be
+ * discarded on the next re-render. The copy control keeps its own gesture, and
+ * a press in the code body stays a text gesture.
+ * @returns a disposer that removes the listeners.
  */
+function installArcadeCodeFloat(): () => void {
+  if (typeof document === 'undefined') return () => {}
+  interface CodeGesture {
+    block: HTMLElement
+    pointerId: number
+    x: number
+    y: number
+    startLeft: number
+    startTop: number
+    moved: boolean
+  }
+  let gesture: CodeGesture | null = null
+
+  const onPointerDown = (event: PointerEvent): void => {
+    if (event.button !== 0) return
+    const target = event.target
+    if (!(target instanceof Element)) return
+    if (target.closest('button') !== null) return
+    const banner = target.closest<HTMLElement>('[class*="bannerWrap"] > [class*="banner"]')
+    if (banner === null) return
+    const block = banner.closest<HTMLElement>('.md-code-block')
+    if (block === null) return
+    const rect = block.getBoundingClientRect()
+    gesture = {
+      block,
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      startLeft: rect.left,
+      startTop: rect.top,
+      moved: false,
+    }
+  }
+
+  const onPointerMove = (event: PointerEvent): void => {
+    if (gesture === null || event.pointerId !== gesture.pointerId) return
+    const dx = event.clientX - gesture.x
+    const dy = event.clientY - gesture.y
+    if (!gesture.moved && Math.abs(dx) < BODY_DRAG_THRESHOLD && Math.abs(dy) < BODY_DRAG_THRESHOLD) return
+    // Only a detached block moves: while it is still in the flow the gesture is
+    // still a candidate click, and the block keeps its place until release.
+    if (!gesture.block.hasAttribute('data-dsh-code-floating')) return
+    gesture.moved = true
+    const block = gesture.block
+    const rect = block.getBoundingClientRect()
+    const left = Math.min(Math.max(0, gesture.startLeft + dx), Math.max(0, window.innerWidth - rect.width))
+    const top = Math.min(Math.max(0, gesture.startTop + dy), Math.max(0, composerCeiling() - PANEL_GAP - rect.height))
+    block.style.setProperty('--dsh-panel-left', `${Math.round(left)}px`)
+    block.style.setProperty('--dsh-panel-top', `${Math.round(top)}px`)
+  }
+
+  const onPointerUp = (event: PointerEvent): void => {
+    if (gesture === null || event.pointerId !== gesture.pointerId) return
+    const { block, moved } = gesture
+    gesture = null
+    if (moved) return
+    if (block.hasAttribute('data-dsh-code-floating')) {
+      block.removeAttribute('data-dsh-code-floating')
+      // The cascade offset was assigned to the detached window; a block back in
+      // the flow must not carry it into its next detach.
+      block.style.removeProperty('--dsh-panel-cascade')
+      return
+    }
+    block.setAttribute('data-dsh-code-floating', '')
+  }
+
+  document.addEventListener('pointerdown', onPointerDown, true)
+  document.addEventListener('pointermove', onPointerMove, true)
+  document.addEventListener('pointerup', onPointerUp, true)
+  document.addEventListener('pointercancel', onPointerUp, true)
+  return () => {
+    document.removeEventListener('pointerdown', onPointerDown, true)
+    document.removeEventListener('pointermove', onPointerMove, true)
+    document.removeEventListener('pointerup', onPointerUp, true)
+    document.removeEventListener('pointercancel', onPointerUp, true)
+  }
+}
+
+/** Every installer this runtime owns, in install order. The skin plugin mounts
+ *  the same roster standalone, so the list lives inside the extracted block. */
 const ARCADE_RUNTIME_INSTALLERS = [
   installArcadePointerFeedback,
   installArcadePanelLayout,
@@ -712,6 +820,7 @@ const ARCADE_RUNTIME_INSTALLERS = [
   installArcadePanelFocus,
   installArcadeWindowChrome,
   installArcadePanelBodyDrag,
+  installArcadeCodeFloat,
 ] as const
 
 /**

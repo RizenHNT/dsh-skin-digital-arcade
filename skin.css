@@ -1865,6 +1865,65 @@ body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-diff] [data-
   text-indent: -2ch;
 }
 
+/* A fenced code block in the reply detaches into a window when its banner is
+   clicked. The block keeps its place in React's tree (only its positioning
+   changes), so highlighting, copy and selection all keep working, and the
+   shared window runtime — drag, resize, click-to-front, cascade — drives it. */
+body[data-ds-dark-theme] [data-phase] .md-code-block[data-dsh-code-floating] {
+  position: fixed;
+  top: var(--dsh-panel-top, calc(clamp(80px, 16vh, 160px) + var(--dsh-panel-cascade, 0px)));
+  right: auto;
+  bottom: auto;
+  left: var(--dsh-panel-left, calc(clamp(24px, calc(50vw - 360px), 360px) + var(--dsh-panel-cascade, 0px)));
+  width: var(--dsh-panel-width, min(620px, calc(100vw - 48px)));
+  height: var(--dsh-panel-height, auto);
+  max-width: calc(100vw - 24px);
+  max-height: var(--dsh-panel-max-height, min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px))));
+  margin: 0;
+  z-index: var(--dsh-panel-z, 40);
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(124, 231, 255, 0.1);
+}
+
+/* The banner is the detach control. The hint is a pseudo-element on purpose:
+   an injected node would be discarded the next time React renders the block.
+   It is positioned out of flow so it neither joins the banner's
+   `space-between` row (which would push the copy control into the middle) nor
+   leaves the banner's own centre uncovered as the detach click target. */
+body[data-ds-dark-theme] [data-phase] .md-code-block [class*='bannerWrap'] > [class*='banner'] {
+  position: relative;
+}
+
+body[data-ds-dark-theme] [data-phase] .md-code-block [class*='bannerWrap'] > [class*='banner']::after {
+  content: '⧉ 浮窗';
+  position: absolute;
+  top: 50%;
+  right: 58px;
+  transform: translateY(-50%);
+  padding: 1px 6px;
+  border: 1px solid rgba(124, 231, 255, 0.3);
+  border-radius: 4px;
+  color: rgba(124, 231, 255, 0.72);
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+}
+
+body[data-ds-dark-theme] [data-phase] .md-code-block [class*='bannerWrap'] > [class*='banner']:hover::after {
+  border-color: rgba(124, 231, 255, 0.62);
+  color: rgba(182, 244, 255, 0.96);
+}
+
+body[data-ds-dark-theme] [data-phase] .md-code-block[data-dsh-code-floating] [class*='bannerWrap'] > [class*='banner']::after {
+  content: '⧉ 还原';
+  border-color: rgba(255, 195, 107, 0.5);
+  color: rgba(255, 195, 107, 0.92);
+}
+
 /* A running resize drag is free to grow beyond the safe-height ceiling; the
    user's chosen size is kept afterwards through --dsh-panel-max-height. */
 body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-resizing='true'],

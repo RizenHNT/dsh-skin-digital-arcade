@@ -192,6 +192,41 @@ assert.equal(window.__dshArcadeWindowRuntime, true, 'mounting must claim the pag
   assert.ok(moves[0].left >= 0 && moves[0].top >= 0, 'the reported position stays on the page')
 }
 
+// ------------------------------------------------- detachable code block ----
+{
+  document.body.innerHTML = ''
+  // A fenced reply block: the banner structure CodeBlock renders.
+  const block = document.createElement('div')
+  block.className = 'md-code-block'
+  const wrap = document.createElement('div')
+  wrap.className = 'x_bannerWrap_x'
+  const banner = document.createElement('div')
+  banner.className = 'x_banner_x'
+  const copy = document.createElement('button')
+  copy.type = 'button'
+  banner.appendChild(copy)
+  wrap.appendChild(banner)
+  block.appendChild(wrap)
+  document.body.appendChild(block)
+
+  // The copy control keeps its own gesture.
+  copy.dispatchEvent(pointerEvent('pointerdown', { clientX: 20, clientY: 20 }))
+  document.dispatchEvent(pointerEvent('pointerup', {}))
+  assert.equal(block.hasAttribute('data-dsh-code-floating'), false, 'the copy control must not detach the block')
+
+  // The banner toggles the window on release, without a drag.
+  banner.dispatchEvent(pointerEvent('pointerdown', { clientX: 20, clientY: 20 }))
+  document.dispatchEvent(pointerEvent('pointerup', {}))
+  assert.equal(block.hasAttribute('data-dsh-code-floating'), true, 'a banner click must detach the block')
+
+  // A second click puts it back, without carrying a stale cascade offset.
+  block.style.setProperty('--dsh-panel-cascade', '28px')
+  banner.dispatchEvent(pointerEvent('pointerdown', { clientX: 20, clientY: 20 }))
+  document.dispatchEvent(pointerEvent('pointerup', {}))
+  assert.equal(block.hasAttribute('data-dsh-code-floating'), false, 'a second banner click must restore the block')
+  assert.equal(block.style.getPropertyValue('--dsh-panel-cascade'), '', 'restoring must clear the window cascade offset')
+}
+
 // ----------------------------------------------------------------- teardown --
 unmount()
 assert.equal(window.__dshArcadeWindowRuntime, undefined, 'unmounting the owner must clear the marker')
