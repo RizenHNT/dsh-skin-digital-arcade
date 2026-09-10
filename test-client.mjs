@@ -227,6 +227,36 @@ assert.equal(window.__dshArcadeWindowRuntime, true, 'mounting must claim the pag
   assert.equal(block.style.getPropertyValue('--dsh-panel-cascade'), '', 'restoring must clear the window cascade offset')
 }
 
+// ------------------------------------------------- anchored west/north drag --
+{
+  document.body.innerHTML = ''
+  const { panel } = mountPanel({ left: 300, top: 200, width: 236, height: 300 })
+  const rect = panel.getBoundingClientRect()
+  const rightBefore = rect.right
+
+  // Pulling the west edge left grows the window leftward: the right edge is the
+  // anchor and must stay exactly where it was.
+  const start = rect.left + 3
+  const move = rect.left - 80
+  panel.dispatchEvent(pointerEvent('pointerdown', { clientX: start, clientY: rect.top + 150, pointerId: 81 }))
+  document.dispatchEvent(pointerEvent('pointermove', { clientX: move, clientY: rect.top + 150, pointerId: 81 }))
+  const width = parseFloat(panel.style.getPropertyValue('--dsh-panel-width'))
+  const left = parseFloat(panel.style.getPropertyValue('--dsh-panel-left'))
+  assert.equal(width, rect.width + (start - move), 'a west drag must grow the width')
+  assert.equal(left, rect.left - (start - move), 'a west drag must move the left edge')
+  assert.equal(left + width, rightBefore, 'the right edge is the anchor and must not move')
+
+  // Past the minimum width the held edge stops too.
+  document.dispatchEvent(pointerEvent('pointermove', { clientX: rect.left + 400, clientY: rect.top + 150, pointerId: 81 }))
+  assert.equal(parseFloat(panel.style.getPropertyValue('--dsh-panel-width')), 196, 'the minimum width still clamps')
+  assert.equal(
+    parseFloat(panel.style.getPropertyValue('--dsh-panel-left')) + 196,
+    rightBefore,
+    'the held edge must stop with the width, not slide on alone',
+  )
+  document.dispatchEvent(pointerEvent('pointerup', { pointerId: 81 }))
+}
+
 // ----------------------------------------------------------------- teardown --
 unmount()
 assert.equal(window.__dshArcadeWindowRuntime, undefined, 'unmounting the owner must clear the marker')

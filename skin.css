@@ -1830,23 +1830,25 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-minimi
 
 /* Maximized panels become a larger centered dialog bubble over the
    transcript — readable without scrolling the page — not a fullscreen
-   takeover. The band above the composer is the window's slot, so a maximized
-   surface never covers the input console. The explicit overrides win over the
-   pinned rail rules. */
+   takeover. The band above the composer is the window's slot, and the stage is
+   the conversation column rather than the viewport: the sidebar takes the left
+   of the viewport, so a window centered on `50vw` reads as off-centre to the
+   eye. The explicit overrides win over the pinned rail rules. */
 body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
 body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
   position: fixed !important;
   top: 50% !important;
   right: auto !important;
   bottom: auto !important;
-  left: 50% !important;
-  width: min(820px, calc(100vw - 48px)) !important;
-  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
+  left: var(--dsh-stage-centre, 50%) !important;
+  width: min(calc(var(--dsh-stage-width, 100vw) - 48px), 1400px) !important;
+  height: min(calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 1000px) !important;
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
-  /* Centered in the band above the composer rather than in the whole viewport,
-     so a maximized window never covers the input console. */
+  /* Centered on the conversation stage and inside the band above the composer,
+     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
+     the composer band keeps a maximized window off the input console. */
   transform: translate(-50%, calc(-50% - var(--dsh-composer-reserve, 186px) / 2)) !important;
   z-index: 500 !important;
   overflow: auto;
@@ -1976,15 +1978,16 @@ body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='
   top: 50% !important;
   right: auto !important;
   bottom: auto !important;
-  left: 50% !important;
-  width: min(820px, calc(100vw - 48px)) !important;
-  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
+  left: var(--dsh-stage-centre, 50%) !important;
+  width: min(calc(var(--dsh-stage-width, 100vw) - 48px), 1400px) !important;
+  height: min(calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 1000px) !important;
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
   overflow: auto;
-  /* Centered in the band above the composer rather than in the whole viewport,
-     so a maximized window never covers the input console. */
+  /* Centered on the conversation stage and inside the band above the composer,
+     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
+     the composer band keeps a maximized window off the input console. */
   transform: translate(-50%, calc(-50% - var(--dsh-composer-reserve, 186px) / 2)) !important;
   z-index: 500 !important;
 }
@@ -2038,15 +2041,16 @@ body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][
   top: 50% !important;
   right: auto !important;
   bottom: auto !important;
-  left: 50% !important;
-  width: min(820px, calc(100vw - 48px)) !important;
-  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
+  left: var(--dsh-stage-centre, 50%) !important;
+  width: min(calc(var(--dsh-stage-width, 100vw) - 48px), 1400px) !important;
+  height: min(calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 1000px) !important;
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
   overflow: auto;
-  /* Centered in the band above the composer rather than in the whole viewport,
-     so a maximized window never covers the input console. */
+  /* Centered on the conversation stage and inside the band above the composer,
+     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
+     the composer band keeps a maximized window off the input console. */
   transform: translate(-50%, calc(-50% - var(--dsh-composer-reserve, 186px) / 2)) !important;
   z-index: 500 !important;
 }

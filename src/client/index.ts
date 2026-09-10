@@ -72,6 +72,17 @@ function installArcadePanelLayout(): () => void {
       '--dsh-composer-reserve',
       `${Math.max(0, Math.round(window.innerHeight - composerTop + PANEL_GAP))}px`,
     )
+    // The conversation is the stage a maximized window belongs to. The sidebar
+    // takes the left of the viewport, so centering on `50vw` reads as
+    // off-centre to the eye; publish the stage's own centre and width instead.
+    const stage = document.querySelector<HTMLElement>('[data-phase]')
+    if (stage !== null) {
+      const rect = stage.getBoundingClientRect()
+      if (rect.width > 0) {
+        document.documentElement.style.setProperty('--dsh-stage-centre', `${Math.round(rect.left + rect.width / 2)}px`)
+        document.documentElement.style.setProperty('--dsh-stage-width', `${Math.round(rect.width)}px`)
+      }
+    }
     // The height ceiling belongs to the page, not to where a window happens to
     // sit: deriving it from the window's own top made dragging a window
     // downward shrink it. Placement keeps the composer clear instead.
@@ -225,8 +236,12 @@ interface ResizeDrag {
   startY: number
   originWidth: number
   originHeight: number
+  originLeft: number
+  originTop: number
   lastWidth: number
   lastHeight: number
+  lastLeft: number
+  lastTop: number
   east: boolean
   west: boolean
   south: boolean
@@ -306,8 +321,12 @@ function installArcadePanelResize(): () => void {
       startY: event.clientY,
       originWidth: rect.width,
       originHeight: rect.height,
+      originLeft: rect.left,
+      originTop: rect.top,
       lastWidth: rect.width,
       lastHeight: rect.height,
+      lastLeft: rect.left,
+      lastTop: rect.top,
       east,
       west,
       south,
@@ -334,18 +353,30 @@ function installArcadePanelResize(): () => void {
     width = Math.max(RESIZE_MIN_WIDTH, width)
     height = Math.max(RESIZE_MIN_HEIGHT, height)
     const clamped = clampToViewport(drag.panel, width, height, drag.west, drag.north)
+    // A west or north drag anchors the OPPOSITE edge: the position absorbs the
+    // size change, so the edge the user is not holding stays put. Deriving the
+    // position from the clamped size also stops the held edge once the minimum
+    // size is reached, instead of letting it slide on alone.
+    let left = drag.west ? drag.originLeft + (drag.originWidth - clamped.width) : drag.originLeft
+    let top = drag.north ? drag.originTop + (drag.originHeight - clamped.height) : drag.originTop
+    if (left < 0) left = 0
+    if (top < 0) top = 0
     drag.lastWidth = clamped.width
     drag.lastHeight = clamped.height
+    drag.lastLeft = left
+    drag.lastTop = top
     drag.panel.style.setProperty('--dsh-panel-width', `${Math.round(clamped.width)}px`)
     drag.panel.style.setProperty('--dsh-panel-height', `${Math.round(clamped.height)}px`)
     // The resting ceiling must admit the size the user just dragged out, or
     // dropping data-dsh-resizing snaps the window back to the rail default.
     drag.panel.style.setProperty('--dsh-panel-max-height', `${Math.round(clamped.height)}px`)
+    if (drag.west) drag.panel.style.setProperty('--dsh-panel-left', `${Math.round(left)}px`)
+    if (drag.north) drag.panel.style.setProperty('--dsh-panel-top', `${Math.round(top)}px`)
   }
 
   const onPointerUp = (event: PointerEvent): void => {
     if (drag === null || event.pointerId !== drag.pointerId) return
-    const { panel, lastWidth, lastHeight } = drag
+    const { panel, lastWidth, lastHeight, lastLeft, lastTop, west, north } = drag
     drag = null
     if (typeof panel.hasPointerCapture === 'function' && panel.hasPointerCapture(event.pointerId)) {
       panel.releasePointerCapture(event.pointerId)
@@ -357,7 +388,14 @@ function installArcadePanelResize(): () => void {
     // Report the settled size so the product state follows the drag.
     panel.dispatchEvent(new CustomEvent('dsh-panel-resized', {
       bubbles: true,
-      detail: { width: Math.round(lastWidth), height: Math.round(lastHeight) },
+      detail: {
+        width: Math.round(lastWidth),
+        height: Math.round(lastHeight),
+        // A west or north drag moved the window's own edge, so the product has
+        // to store the new position too or the next render snaps it back.
+        ...(west ? { left: Math.round(lastLeft) } : {}),
+        ...(north ? { top: Math.round(lastTop) } : {}),
+      },
     }))
   }
 
