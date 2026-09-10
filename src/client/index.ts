@@ -52,24 +52,25 @@ function installArcadePanelLayout(): () => void {
   const cascaded = new WeakSet<HTMLElement>()
   const sync = (): void => {
     if (disposed) return
-    const composer = document.querySelector<HTMLElement>("[data-phase] [class*='composerSeat']")
-    const composerTop = composer?.getBoundingClientRect().top ?? window.innerHeight - 140
+    const composerTop = composerCeiling()
     document.documentElement.style.setProperty(
       '--dsh-composer-reserve',
       `${Math.max(0, Math.round(window.innerHeight - composerTop + PANEL_GAP))}px`,
     )
+    // The height ceiling belongs to the page, not to where a window happens to
+    // sit: deriving it from the window's own top made dragging a window
+    // downward shrink it. Placement keeps the composer clear instead.
+    const safeHeight = `${Math.max(RESIZE_MIN_HEIGHT, Math.round(composerTop - PANEL_TOP_FLOOR - PANEL_GAP))}px`
     const panels = document.querySelectorAll<HTMLElement>('[data-dsh-detail-panel], [data-dsh-code-panel]')
     for (const panel of panels) {
       const rect = panel.getBoundingClientRect()
       // A hidden or maximized panel owns its geometry: the maximized rule
-      // centers inside the composer reserve, so a ceiling computed from the
-      // panel's own top would only clip it.
+      // centers inside the composer reserve, so a ceiling would only clip it.
       if (rect.width === 0 || rect.height === 0 || panel.hasAttribute('data-dsh-panel-maximized')) {
         panel.style.removeProperty('--dsh-panel-safe-height')
         continue
       }
-      const available = Math.round(composerTop - rect.top - 12)
-      panel.style.setProperty('--dsh-panel-safe-height', `${Math.max(96, available)}px`)
+      panel.style.setProperty('--dsh-panel-safe-height', safeHeight)
     }
     // Lay newly opened windows out on a diagonal, so several open details read
     // as separate windows instead of one exactly stacked pile. Each window is
@@ -127,8 +128,9 @@ function installArcadePanelLayout(): () => void {
   }
 }
 
-/** Edge hit zone (px) that starts a panel resize drag. */
-const RESIZE_EDGE = 8
+/** Edge hit zone (px) that starts a panel resize drag. Wide enough to grab
+ *  without hunting: a window edge is a thin target on a scaled display. */
+const RESIZE_EDGE = 14
 /** The mobile sheet has no four-edge resize interaction. */
 const MOBILE_BREAKPOINT = 768
 /** Smallest panel size a resize drag can produce. */
@@ -136,6 +138,18 @@ const RESIZE_MIN_WIDTH = 196
 const RESIZE_MIN_HEIGHT = 120
 /** Rail gap the panel keeps from the transcript when pushed or sized. */
 const PANEL_GAP = 18
+/** Top inset a floating window keeps from the viewport edge. */
+const PANEL_TOP_FLOOR = 12
+
+/**
+ * Top of the sticky composer, or the viewport floor when it is absent. Windows
+ * use it as their lower bound, so a placed window never covers the input.
+ * @returns the composer's top edge in viewport pixels.
+ */
+function composerCeiling(): number {
+  const composer = document.querySelector<HTMLElement>("[data-phase] [class*='composerSeat']")
+  return composer?.getBoundingClientRect().top ?? window.innerHeight - 140
+}
 /** Step a settled window snaps to, so dropped windows line up. */
 const SNAP_STEP = 8
 /** Step each newly opened window is offset by, so a stack of windows reads. */
@@ -242,10 +256,10 @@ function installArcadePanelResize(): () => void {
     const rect = panel.getBoundingClientRect()
     /* v8 ignore next -- jsdom innerWidth (1024) always clears the minimum */
     const maxWidth = Math.max(RESIZE_MIN_WIDTH, (west ? rect.right : window.innerWidth) - (west ? 12 : rect.left + 12))
-    const composer = document.querySelector<HTMLElement>("[data-phase] [class*='composerSeat']")
+    const ceiling = composerCeiling()
     const maxHeight = Math.max(
       RESIZE_MIN_HEIGHT,
-      (north ? rect.bottom : (composer?.getBoundingClientRect().top ?? window.innerHeight - 140) - rect.top) - PANEL_GAP,
+      (north ? rect.bottom : ceiling - rect.top) - PANEL_GAP,
     )
     return { width: Math.min(width, maxWidth), height: Math.min(height, maxHeight) }
   }
@@ -616,9 +630,14 @@ function installArcadePanelBodyDrag(): () => void {
     if (!drag.moved && Math.abs(dx) < BODY_DRAG_THRESHOLD && Math.abs(dy) < BODY_DRAG_THRESHOLD) return
     drag.moved = true
     const panel = drag.panel
+    const rect = panel.getBoundingClientRect()
+    // Keep the window on the page and clear of the composer: a window dragged
+    // over the input console would cover the control the user is typing into.
+    const left = Math.min(Math.max(0, drag.originX + dx), Math.max(0, window.innerWidth - rect.width))
+    const top = Math.min(Math.max(0, drag.originY + dy), Math.max(0, composerCeiling() - PANEL_GAP - rect.height))
     panel.style.position = 'fixed'
-    panel.style.left = `${drag.originX + dx}px`
-    panel.style.top = `${drag.originY + dy}px`
+    panel.style.left = `${Math.round(left)}px`
+    panel.style.top = `${Math.round(top)}px`
     panel.style.right = 'auto'
     panel.style.bottom = 'auto'
     panel.style.margin = '0'
