@@ -246,6 +246,18 @@ body[data-ds-dark-theme] [data-phase='settling'] {
   animation: dsh-phase-signal 36s ease-in-out infinite;
 }
 
+/* Floating detail surfaces are portalled to `body`, outside any [data-phase],
+   so they never inherit the rail geometry variables scoped below. Declare the
+   same rail defaults on the body scope as well; the [data-phase] declarations
+   shadow them for in-flow transcript consumers, while a portalled panel still
+   resolves a real rail width instead of shrink-to-fitting to its content. */
+body[data-ds-dark-theme] {
+  --dsh-detail-rail-width: 236px;
+  --dsh-detail-rail-min-width: 196px;
+  --dsh-detail-rail-max-width: min(520px, calc(100vw - 24px));
+  --dsh-detail-rail-gap: 18px;
+}
+
 body[data-ds-dark-theme] [data-phase='hero'],
 body[data-ds-dark-theme] [data-phase='active'],
 body[data-ds-dark-theme] [data-phase='settling'] {
@@ -969,13 +981,23 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] {
     inset 0 0 30px rgba(210, 140, 255, 0.04),
     0 12px 34px rgba(0, 0, 0, 0.12);
   font-family: var(--dsw-font-pixel);
-  transition: transform 220ms ease;
+  transition: padding 220ms ease;
 }
 
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind] {
   box-sizing: border-box;
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* Detail bodies are viewport windows. Their React owners remain in the
+   message row for reconciliation, while fixed positioning keeps the window
+   independent of transcript scrolling. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] > [data-chat-flow-kind='assistant-step'],
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] > [data-chat-flow-kind='tool-call'] {
+  position: relative;
+  min-width: 0;
+  overflow: visible;
 }
 
 /* Give long turns and tool rows a readable cadence. The margins stay inside
@@ -993,8 +1015,6 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call'] {
    and never becomes a full-page mask. */
 body[data-ds-dark-theme] [data-phase] [class*='composerStack'] {
   position: relative;
-  z-index: 2;
-  isolation: isolate;
 }
 
 body[data-ds-dark-theme] [data-phase] [class*='composerStack']::before {
@@ -1014,12 +1034,9 @@ body[data-ds-dark-theme] [data-phase] [class*='composerStack'] [class*='card'] {
   z-index: 1;
 }
 
-/* An open disclosure uses the unused left rail. The main transcript shifts
-   as one surface so the detail card never sits on top of readable prose. */
-body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-disclosure-row][aria-expanded='true']),
-body[data-ds-dark-theme] [data-phase]:has([class*='NjBokG_panel']) [data-chat-flow] {
-  transform: translateX(132px);
-}
+/* Detail panels float above the transcript. They never reserve width in the
+   message flow, so opening, pinning, or resizing one leaves the conversation
+   column exactly as wide as it was. */
 
 /* Assistant replies stay visually connected, but the text gets a quiet
    local scrim so the city scene never competes with a long paragraph. */
@@ -1073,16 +1090,18 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow]::before {
 /* Think details become a compact left-side dossier while the disclosure row
    remains in the transcript as the control and summary. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) {
+  position: relative;
   z-index: 3;
 }
 
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) [class*='thinkBody'] {
-  position: absolute;
-  top: 0;
-  right: calc(100% + var(--dsh-detail-rail-gap));
+  position: fixed;
+  top: clamp(80px, 16vh, 160px);
+  left: clamp(24px, calc(50vw - 360px), 360px);
+  right: auto;
   width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
   height: var(--dsh-panel-height, auto);
-  max-height: min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px)));
+  max-height: var(--dsh-panel-max-height, min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px))));
   box-sizing: border-box;
   overflow: auto;
   padding: 14px 16px;
@@ -1102,16 +1121,18 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has
    main stream. The sibling selector targets the existing body wrapper without
    depending on generated class names. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([data-disclosure-row][aria-expanded='true']) [data-tool] {
+  position: relative;
   z-index: 3;
 }
 
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([data-disclosure-row][aria-expanded='true']) [data-tool] > div > [data-disclosure-row] ~ div {
-  position: absolute;
-  top: 30px;
-  right: calc(100% + var(--dsh-detail-rail-gap));
+  position: fixed;
+  top: clamp(80px, 16vh, 160px);
+  left: clamp(24px, calc(50vw - 360px), 360px);
+  right: auto;
   width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
   height: var(--dsh-panel-height, auto);
-  max-height: min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px)));
+  max-height: var(--dsh-panel-max-height, min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px))));
   box-sizing: border-box;
   overflow: auto;
   padding: 10px;
@@ -1127,10 +1148,8 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([dat
   z-index: 4;
 }
 
-/* A pinned code panel keeps its measured viewport position while the
-   transcript avoids its rail. The flow is the containing block for this
-   fixed child, so the React panel stores coordinates relative to the flow
-   before pinning; this keeps it stable when the left rail opens. */
+/* A pinned code panel keeps its measured viewport position. React stores
+   viewport coordinates, so pinning does not move the panel. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-pinned='true'] > div > [data-disclosure-row] ~ div {
   position: fixed;
   top: var(--dsh-panel-top, 120px);
@@ -1141,14 +1160,14 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-pane
   max-height: min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px)));
   margin: 0;
   transform: none;
-  z-index: 40;
+  z-index: var(--dsh-panel-z, 40);
 }
 
 /* Expanded detail surfaces size through the theme runtime's window-style
    resize drag: width/height come from CSS variables set while the pointer
-   drags an edge or corner, with the browser keeping min/max guards. The
-   safe-height observer limits their vertical surface above the sticky
-   composer, while overflow keeps long code and Think text inside the panel. */
+   drags an edge or corner. The safe-height observer limits their vertical
+   surface above the sticky composer, while overflow keeps long code and Think
+   text inside the panel. */
 body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail-panel], [data-dsh-code-panel]) {
   box-sizing: border-box;
   min-width: var(--dsh-detail-rail-min-width);
@@ -1156,37 +1175,21 @@ body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail
   overflow: auto;
 }
 
-body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail-panel], [data-dsh-code-panel])::after {
-  content: '';
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 12px;
-  height: 12px;
-  pointer-events: none;
-  background: linear-gradient(135deg, transparent 0 45%, rgba(124, 231, 255, 0.72) 46% 54%, transparent 55% 66%, rgba(255, 98, 189, 0.74) 67% 75%, transparent 76%);
-  opacity: 0.58;
+/* Keep the fixed panel's containing block at the viewport: a transformed or
+   filtered ancestor would trap the floating detail window inside the message
+   flow and clip it against the transcript's scroll box. */
+body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true']) {
+  transform: none;
 }
 
-/* A pinned panel's rail is reserved live: the theme runtime mirrors the
-   widest pinned panel width per side into --dsh-flow-avoid-*, so the flow
-   yields exactly what the panel occupies (plus the rail gap) while it is
-   dragged or resized, without ever changing the conversation's own size. */
-body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='left']) {
-  transform: translateX(var(--dsh-flow-avoid-left, 0px));
+body[data-ds-dark-theme] [data-phase] [data-chat-flow] {
+  transform: none;
+  padding-left: 32px;
+  padding-right: 30px;
 }
 
-body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='right']) {
-  transform: translateX(calc(-1 * var(--dsh-flow-avoid-right, 0px)));
-}
-
-body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='left']):has([data-dsh-panel-pinned='true'][data-dsh-panel-side='right']) {
-  transform: translateX(0);
-}
-
-/* Multiple pinned cards share the same rail without changing the normal
-   message width. Their local drag offsets determine the final vertical
-   stack, while the rail-safe transcript remains readable between them. */
+/* Pinned cards are independent floating windows: their drag offsets determine
+   the vertical stack, and the transcript underneath keeps its full width. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-pinned='true'] [data-dsh-code-panel] {
   border-color: rgba(255, 98, 189, 0.48);
   box-shadow:
@@ -1205,8 +1208,10 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-pane
 }
 
 /* The existing context-meter panel already contains the live used/capacity
-   projection. Move that real panel into the left rail when it is opened. */
-body[data-ds-dark-theme] [data-phase] [class*='NjBokG_panel'] {
+   projection. Move that real panel into the left rail when it is opened. The
+   marker is a stable data attribute: a generated CSS-module class name would
+   change with every edit to the owning module and silently drop this rule. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-context-meter] {
   position: fixed;
   top: auto;
   right: auto;
@@ -1800,10 +1805,10 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
   }
 }
 
-/* Think dossiers pin like code panels: viewport-fixed at the measured offset
-   with the transcript avoiding their rail. This rule must out-specify the
-   inline left-rail dossier rule (assistant-step + :has + thinkBody), or the
-   pinned panel snaps back into the rail instead of floating. */
+/* Think dossiers pin like code panels: viewport-fixed at the measured offset.
+   This rule must out-specify the inline left-rail dossier rule (assistant-step
+   + :has + thinkBody), or the pinned panel snaps back into the rail instead of
+   floating. */
 body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step'][data-variant='think'][data-dsh-panel-pinned='true'] [class*='thinkBody'] {
   position: fixed;
   top: var(--dsh-panel-top, 120px);
@@ -1811,9 +1816,9 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step'][dat
   left: var(--dsh-panel-left, -220px);
   width: min(var(--dsh-panel-width, var(--dsh-detail-rail-width)), calc(100vw - 24px));
   height: var(--dsh-panel-height, auto);
-  max-height: min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px)));
+  max-height: var(--dsh-panel-max-height, min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px))));
   margin: 0;
-  z-index: 40;
+  z-index: var(--dsh-panel-z, 40);
 }
 
 /* Minimized panels park in the dock: hidden from the transcript until the
@@ -1823,19 +1828,197 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-minimi
   display: none;
 }
 
-/* Maximized panels fill the viewport like a fullscreen window; the explicit
-   overrides win over the pinned rail rules while the window is enlarged. */
+/* Maximized panels become a larger centered dialog bubble over the
+   transcript — readable without scrolling the page — not a fullscreen
+   takeover. The band above the composer is the window's slot, so a maximized
+   surface never covers the input console. The explicit overrides win over the
+   pinned rail rules. */
 body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
 body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
   position: fixed !important;
-  inset: 10px !important;
-  width: auto !important;
-  height: auto !important;
+  top: 12px !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  width: min(820px, calc(100vw - 48px)) !important;
+  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
   max-width: none !important;
   max-height: none !important;
   margin: 0 !important;
+  transform: translateX(-50%) !important;
   z-index: 500 !important;
   overflow: auto;
+}
+
+/* A running resize drag is free to grow beyond the safe-height ceiling; the
+   user's chosen size is kept afterwards through --dsh-panel-max-height. */
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-resizing='true'],
+body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-resizing='true'] {
+  max-height: none !important;
+}
+
+/* Expanded Think dossiers render through the conversation owner's body
+   portal. These rules keep the same window geometry after the panel leaves
+   the scrollable conversation tree. */
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'] {
+  position: fixed;
+  top: var(--dsh-panel-top, calc(clamp(80px, 16vh, 160px) + var(--dsh-panel-cascade, 0px)));
+  right: auto;
+  left: var(--dsh-panel-left, calc(clamp(24px, calc(50vw - 360px), 360px) + var(--dsh-panel-cascade, 0px)));
+  width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
+  height: var(--dsh-panel-height, auto);
+  max-width: calc(100vw - 24px);
+  max-height: var(--dsh-panel-max-height, min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px))));
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 14px 16px;
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(8, 18, 40, 0.96), rgba(15, 22, 47, 0.9)),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.04) 0 1px, transparent 1px 6px);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(124, 231, 255, 0.1);
+  z-index: var(--dsh-panel-z, 40);
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-panel-pinned='true'] {
+  top: var(--dsh-panel-top, 120px);
+  left: var(--dsh-panel-left, -220px);
+  width: min(var(--dsh-panel-width, var(--dsh-detail-rail-width)), calc(100vw - 24px));
+  max-height: var(--dsh-panel-max-height, min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px))));
+  margin: 0;
+  transform: none;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-panel-minimized='true'] {
+  display: none;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-panel-maximized='true'] {
+  position: fixed !important;
+  top: 12px !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  width: min(820px, calc(100vw - 48px)) !important;
+  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: auto;
+  transform: translateX(-50%) !important;
+  z-index: 500 !important;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-resizing='true'] {
+  max-height: none !important;
+}
+
+/* Code and Tool details use the same body portal as Think. Keep the window
+   geometry on the portal path so the panel remains fixed after leaving the
+   transcript's scrolling subtree. */
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] :is([data-dsh-detail-panel='code'], [data-dsh-detail-panel='tool']) {
+  position: fixed;
+  top: var(--dsh-panel-top, calc(clamp(80px, 16vh, 160px) + var(--dsh-panel-cascade, 0px)));
+  right: auto;
+  left: var(--dsh-panel-left, calc(clamp(24px, calc(50vw - 360px), 360px) + var(--dsh-panel-cascade, 0px)));
+  width: var(--dsh-panel-width, var(--dsh-detail-rail-width));
+  height: var(--dsh-panel-height, auto);
+  max-width: calc(100vw - 24px);
+  max-height: var(--dsh-panel-max-height, min(460px, var(--dsh-panel-safe-height, calc(100vh - 220px))));
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid rgba(124, 231, 255, 0.28);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(8, 18, 40, 0.98), rgba(14, 22, 47, 0.92)),
+    repeating-linear-gradient(0deg, rgba(124, 231, 255, 0.04) 0 1px, transparent 1px 6px);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(124, 231, 255, 0.1);
+  z-index: var(--dsh-panel-z, 40);
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] :is([data-dsh-detail-panel='code'], [data-dsh-detail-panel='tool'])[data-dsh-panel-pinned='true'] {
+  top: var(--dsh-panel-top, 120px);
+  left: var(--dsh-panel-left, -220px);
+  width: min(var(--dsh-panel-width, var(--dsh-detail-rail-width)), calc(100vw - 24px));
+  max-height: var(--dsh-panel-max-height, min(520px, var(--dsh-panel-safe-height, calc(100vh - 80px))));
+  margin: 0;
+  transform: none;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-panel-minimized='true'] {
+  display: none;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-panel-maximized='true'] {
+  position: fixed !important;
+  top: 12px !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: 50% !important;
+  width: min(820px, calc(100vw - 48px)) !important;
+  height: clamp(220px, calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 560px) !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: auto;
+  transform: translateX(-50%) !important;
+  z-index: 500 !important;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-resizing='true'] {
+  max-height: none !important;
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-panel-pinned='true'][data-dsh-code-panel] {
+  border-color: rgba(255, 98, 189, 0.48);
+  box-shadow:
+    0 0 0 1px rgba(255, 98, 189, 0.12),
+    0 14px 32px rgba(0, 0, 0, 0.48),
+    0 0 28px rgba(210, 140, 255, 0.18);
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-panel-dragging='true'][data-dsh-code-panel] {
+  cursor: grabbing;
+  user-select: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 195, 107, 0.34),
+    0 18px 42px rgba(0, 0, 0, 0.56),
+    0 0 38px rgba(255, 98, 189, 0.24);
+}
+
+/* The active window is the one the user pressed last: it carries the raised
+   z-index the runtime wrote and a brighter frame, so a stack of overlapping
+   windows still says which one is on top. */
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel][data-dsh-panel-active='true'],
+body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-active='true'],
+body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-active='true'] {
+  border-color: rgba(124, 231, 255, 0.62);
+  box-shadow:
+    0 0 0 1px rgba(124, 231, 255, 0.22),
+    0 18px 40px rgba(0, 0, 0, 0.52),
+    0 0 34px rgba(124, 231, 255, 0.2);
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel] [data-dsh-drag-handle] {
+  position: relative;
+  border-bottom: 1px solid rgba(124, 231, 255, 0.2);
+  background:
+    linear-gradient(90deg, rgba(255, 98, 189, 0.1), rgba(124, 231, 255, 0.05) 62%, transparent),
+    repeating-linear-gradient(90deg, rgba(124, 231, 255, 0.05) 0 1px, transparent 1px 12px);
+  color: rgba(182, 244, 255, 0.78);
+}
+
+body[data-ds-dark-theme] [data-dsh-detail-overlay-root] [data-dsh-detail-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
+  position: relative;
+  z-index: 1;
 }
 
 /* Taskbar docks on both free flanks of the transcript. Each side holds a
