@@ -45,6 +45,8 @@ css = re.sub(r"url\('/assets/([^']+)\.png'", r"url('/skin-assets/\1.webp'", css)
 css = re.sub(r'url\("/assets/([^"]+)\.png"', r'url("/skin-assets/\1.webp"', css)
 css = re.sub(r"url\(/assets/([^)]+)\.png", r"url(/skin-assets/\1.webp", css)
 
+css = css.replace('/assets/whale-workbench/', '/skin-assets/whale-workbench/').replace('/assets/vendor/', '/skin-assets/vendor/')
+
 with open(out, 'w', encoding='utf-8') as f:
     f.write(css)
 

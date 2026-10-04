@@ -11,6 +11,8 @@
  * exactly as wide as it was.
  */
 
+import { installSkinAppearance } from './appearance.ts'
+
 /**
  * Every surface the window runtime treats as a floating window: the portalled
  * detail panels (Think, tool output, Code) and any in-flow code block the user
@@ -35,6 +37,7 @@ const WINDOW_MINIMIZED_SELECTOR = [
 function installArcadePointerFeedback(): () => void {
   if (typeof document === 'undefined') return () => {}
   const onPointerDown = (event: PointerEvent): void => {
+    if (!document.body.hasAttribute('data-dsh-arcade')) return
     if (event.button !== 0) return
     const target = event.target
     if (!(target instanceof Element) || target.closest("textarea, input, [contenteditable='true']") !== null) return
@@ -880,6 +883,7 @@ export const inject = []
  * @param ctx - client plugin context providing `effect`.
  */
 export function apply(ctx) {
+  installSkinAppearance(ctx)
   const host = globalThis
   if (host[ARCADE_RUNTIME_FLAG] === true) return
   host[ARCADE_RUNTIME_FLAG] = true

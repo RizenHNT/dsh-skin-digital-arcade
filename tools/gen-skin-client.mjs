@@ -97,6 +97,7 @@ export const inject = []
  * @param ctx - client plugin context providing \`effect\`.
  */
 export function apply(ctx) {
+  installSkinAppearance(ctx)
   const host = globalThis
   if (host[ARCADE_RUNTIME_FLAG] === true) return
   host[ARCADE_RUNTIME_FLAG] = true
@@ -113,7 +114,9 @@ export function apply(ctx) {
 const outDir = join(SKIN_ROOT, 'src', 'client')
 mkdirSync(outDir, { recursive: true })
 const outFile = join(outDir, 'index.ts')
-writeFileSync(outFile, `${header}${body}\n${shell}`, 'utf8')
+writeFileSync(outFile, `${header}import { installSkinAppearance } from './appearance.ts'
+
+${body}\n${shell}`, 'utf8')
 
 const lines = body.split('\n').length
 console.log(`gen-skin-client: read    ${source}`)

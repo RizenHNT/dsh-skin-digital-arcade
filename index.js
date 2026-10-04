@@ -31,6 +31,8 @@ const CONTENT_TYPES = {
   '.woff2': 'font/woff2',
   '.webp': 'image/webp',
   '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.js': 'text/javascript; charset=utf-8',
 }
 
 /** Serve one package asset; 404 for anything outside the skin's asset set. */
