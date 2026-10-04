@@ -2091,7 +2091,7 @@ index 6df56ceb96..49e66ff6b2 100644
 +  'appearance.arcade': 'Pixel neon',
  } satisfies Record<ThemeKey, string>
 diff --git a/packages/client/ui-theme/src/styles/personal.css b/packages/client/ui-theme/src/styles/personal.css
-index c77d627c9b..715859a489 100644
+index c77d627c9b..a76c4b1429 100644
 --- a/packages/client/ui-theme/src/styles/personal.css
 +++ b/packages/client/ui-theme/src/styles/personal.css
 @@ -44,7 +44,7 @@
@@ -3608,7 +3608,7 @@ index c77d627c9b..715859a489 100644
  }
  
  /* Taskbar docks on both free flanks of the transcript. Each side holds a
-@@ -1943,3 +2201,875 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
+@@ -1943,3 +2201,878 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
    background: rgba(124, 231, 255, 0.08);
    color: var(--rizen-cyan-bright);
  }
@@ -4484,6 +4484,9 @@ index c77d627c9b..715859a489 100644
 +
 +[data-skin-appearance] { display:flex; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap; }
 +[data-skin-appearance] input { width:180px; max-width:100%; padding:8px 10px; color:inherit; background:transparent; border:1px solid currentColor; border-radius:0; }
++
++/* Clip scene decorations without creating a focus-scroll container. */
++body[data-dsh-arcade] [data-whale-scene] { overflow:clip; }
 diff --git a/packages/client/ui-theme/src/theme-settings.ts b/packages/client/ui-theme/src/theme-settings.ts
 index c2c268e21f..863a9dee05 100644
 --- a/packages/client/ui-theme/src/theme-settings.ts

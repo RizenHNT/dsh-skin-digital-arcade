@@ -3073,3 +3073,6 @@ body[data-dsh-arcade] [data-character-name]::placeholder {color:#b3f4ff;opacity:
 
 [data-skin-appearance] { display:flex; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap; }
 [data-skin-appearance] input { width:180px; max-width:100%; padding:8px 10px; color:inherit; background:transparent; border:1px solid currentColor; border-radius:0; }
+
+/* Clip scene decorations without creating a focus-scroll container. */
+body[data-dsh-arcade] [data-whale-scene] { overflow:clip; }

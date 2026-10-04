@@ -94,6 +94,11 @@ node tools/apply-harness-integration.mjs /path/to/deepseek-harness --apply
 
 ## 更新记录
 
+### v0.3.1
+
+- 修复聚焦名字/输入框时，主页场景内部自动滚动造成的标题与人物顶部裁切。装饰区域改用不产生滚动容器的裁切方式。
+
+
 ### v0.2.3
 
 - **修复：从左边或上边拉伸时，另一侧会跟着动**。此前 west/north 拖动只改宽度、
