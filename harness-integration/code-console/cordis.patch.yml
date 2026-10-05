@@ -1,0 +1,7 @@
+# Adds the host half. The client half is discovered from package.json's
+# dsh.client declaration and contributes the appearance switch in Settings.
+- insert:
+    - id: skin-code-console
+      name: dsh-skin-code-console
+      inject:
+        - webServer

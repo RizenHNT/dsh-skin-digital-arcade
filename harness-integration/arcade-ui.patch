@@ -962,6 +962,26 @@ index 05baf26f8d..05b8917a3d 100644
  export { HoverCard } from './HoverCard.tsx'
  export { Modal } from './Modal.tsx'
  export { OnboardingSurface } from './OnboardingSurface.tsx'
+diff --git a/packages/client/ui-settings-general/src/client/SettingsRoot.module.css b/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
+index 060e8d115b..cf6bedbcf6 100644
+--- a/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
++++ b/packages/client/ui-settings-general/src/client/SettingsRoot.module.css
+@@ -224,3 +224,15 @@
+   clip: rect(0 0 0 0);
+   white-space: nowrap;
+ }
++
++/* Compact settings navigation leaves the full content width available on phones. */
++@media (max-width: 600px) {
++  .panel { width:calc(100vw - 24px); max-width:calc(100vw - 24px); height:calc(100dvh - 24px); display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
++  .nav { width:100%; min-width:0; padding:12px 12px 0; gap:10px; }
++  .navTitle { min-height:28px; padding:0 150px 0 4px; }
++  .navList { flex-direction:row; overflow-x:auto; padding-bottom:8px; gap:4px; }
++  .navCell { flex:none; min-height:44px; padding:8px 12px; }
++  .content { min-height:0; }
++  .header { position:absolute; top:0; right:0; height:48px; max-width:170px; padding:12px 10px 8px; }
++  .options { padding:4px 16px 20px; min-width:0; }
++}
 diff --git a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css b/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
 index 300075b88d..8db2dfc80c 100644
 --- a/packages/client/ui-sidebar/src/client/SidebarRoot.module.css
@@ -1312,7 +1332,7 @@ index 8cf5ac6d7b..ff47cd82c8 100644
 +  'toggle.mobile.close': 'Close mobile sidebar',
  } satisfies Record<SidebarKey, string>
 diff --git a/packages/client/ui-theme/src/boot-theme.ts b/packages/client/ui-theme/src/boot-theme.ts
-index 89b81b9de1..c5778eece3 100644
+index 89b81b9de1..632ba378af 100644
 --- a/packages/client/ui-theme/src/boot-theme.ts
 +++ b/packages/client/ui-theme/src/boot-theme.ts
 @@ -14,9 +14,10 @@ function bootThemeScript(preference: ThemePreference): string {
@@ -1320,30 +1340,227 @@ index 89b81b9de1..c5778eece3 100644
      && typeof matchMedia !== 'undefined'
      && matchMedia('(prefers-color-scheme: dark)').matches
 -  const dark = preference === 'dark' || systemDark
-+  const dark = preference === 'dark' || preference === 'arcade' || systemDark
++  const dark = preference === 'dark' || preference === 'arcade' || preference === 'code-console' || systemDark
    document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
    document.body.toggleAttribute('data-ds-dark-theme', dark)
 +  document.body.toggleAttribute('data-dsh-arcade', preference === 'arcade')
  })()</script>`
  }
  
+diff --git a/packages/client/ui-theme/src/client/AppearanceRow.module.css b/packages/client/ui-theme/src/client/AppearanceRow.module.css
+index 6c5354b0ac..5d41175dec 100644
+--- a/packages/client/ui-theme/src/client/AppearanceRow.module.css
++++ b/packages/client/ui-theme/src/client/AppearanceRow.module.css
+@@ -1,57 +1,32 @@
+-/* Appearance row (figma 'Frame 2117131228': title + cube row, column gap 8,
+- * pad 16/0, hairline separator; the section column strips it when last). */
+-
+-.group {
+-  display: flex;
+-  flex-direction: column;
+-  gap: 8px;
+-  padding: 16px 0;
+-  border-bottom: 1px solid var(--dsw-alias-border-l2);
+-}
+-
+-.title {
+-  font-size: 14px;
+-  font-weight: 400;
+-  line-height: 22px;
+-  color: var(--dsw-alias-label-primary);
+-}
+-
+-.cubeRow {
+-  display: flex;
+-  align-items: stretch;
+-  gap: 8px;
+-  flex-wrap: wrap;
+-}
+-
+-/* Appearance cube (figma '.Selector Cube' 276x82 r16, pad 20/32, centered
+- * icon-over-label column, gap 4); flexed down from the figma width so all
+- * three sit on one row in the 800 panel, wrapping when narrower. */
+-.themeCube {
+-  box-sizing: border-box;
+-  flex: 1 1 180px;
+-  display: flex;
+-  flex-direction: column;
+-  align-items: center;
+-  justify-content: center;
+-  gap: 4px;
+-  padding: 20px 32px;
+-  border: 1px solid var(--dsw-alias-border-l2);
+-  border-radius: 16px;
+-  background: transparent;
+-  font: inherit;
+-  font-size: 14px;
+-  line-height: 22px;
+-  color: var(--dsw-alias-label-primary);
+-  cursor: pointer;
+-}
+-
+-.themeCube:hover:not(.selected) {
+-  background: var(--dsw-alias-interactive-bg-hover);
+-}
+-
+-/* Selected cube: #F5F6F7 fill + #ADB2B8 border (static token — the bluish-400
+- * step has no alias-layer name). */
+-.selected {
+-  background: var(--dsw-alias-bg-module-platform);
+-  border-color: var(--dsw-static-neutral-bluish-400);
+-}
++.group { display:flex; flex-direction:column; gap:10px; padding:16px 0; border-bottom:1px solid var(--dsw-alias-border-l2); }
++.title { font-size:14px; line-height:22px; color:var(--dsw-alias-label-primary); }
++.label { font-size:12px; line-height:20px; color:var(--dsw-alias-label-secondary); }
++.colorRow { display:flex; gap:4px; padding:4px; border:1px solid var(--dsw-alias-border-l2); border-radius:6px; }
++.colorButton { flex:1; min-width:0; min-height:40px; display:flex; align-items:center; justify-content:center; gap:8px; border:1px solid transparent; border-radius:3px; background:transparent; color:var(--dsw-alias-label-primary); font:inherit; font-size:13px; cursor:pointer; }
++.cubeRow { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr)); gap:10px; }
++.themeCube { min-width:0; padding:8px; display:flex; flex-direction:column; gap:8px; border:1px solid var(--dsw-alias-border-l2); border-radius:6px; background:transparent; color:var(--dsw-alias-label-primary); font:inherit; font-size:13px; cursor:pointer; }
++.colorButton:hover, .themeCube:hover { background:var(--dsw-alias-interactive-bg-hover); }
++.selected { border-color:var(--dsw-alias-brand-primary); background:var(--dsw-alias-bg-module-platform); }
++.colorButton:focus-visible, .themeCube:focus-visible { outline:2px solid var(--dsw-alias-brand-primary); outline-offset:2px; }
++.caption { display:flex; justify-content:space-between; align-items:center; padding:0 2px; min-height:22px; }
++.check { width:18px; color:var(--dsw-alias-brand-primary); }
++.note { font-size:12px; line-height:19px; color:var(--dsw-alias-label-secondary); }
++.preview { position:relative; height:70px; width:100%; display:flex; overflow:hidden; border:1px solid var(--dsw-alias-border-l2); border-radius:3px; }
++.defaultPreview { background:var(--dsw-alias-bg-base); }
++.previewRail { width:22%; border-right:1px solid var(--dsw-alias-border-l2); background:var(--dsw-alias-bg-layer-1); }
++.previewContent { flex:1; padding:12px 10px; display:flex; flex-direction:column; gap:7px; }
++.previewContent i { height:4px; width:76%; background:var(--dsw-alias-border-l2); }
++.previewContent i:nth-child(2) { width:55%; }
++.previewContent i:nth-child(3) { margin-top:auto; height:12px; width:100%; border:1px solid var(--dsw-alias-border-l2); background:transparent; }
++.arcadePreview { background:repeating-linear-gradient(0deg,transparent 0 11px,#3ccfff14 11px 12px),repeating-linear-gradient(90deg,transparent 0 11px,#3ccfff14 11px 12px),linear-gradient(135deg,#0a1b43,#174e87); border-color:#45d8ff; box-shadow:inset 0 0 12px #30c6ff25; }
++.arcadePreview .previewRail { background:#123565; border-color:#48dfff; }
++.arcadePreview .previewContent i { background:#78dfff; box-shadow:0 0 4px #23b9ff; }
++.arcadePreview .previewContent i:nth-child(3) { border-color:#6ddfff; background:#11254b; box-shadow:none; }
++.previewWhale { position:absolute; right:12px; top:5px; width:27px; height:32px; background:url('/assets/whale-workbench/lanxi-pixel-calm.svg') center/contain no-repeat; image-rendering:pixelated; }
++.consolePreview { background:#0d152b; border-color:#3c5a88; }
++.consolePreview .previewRail { background:#070b19; border-color:#294269; }
++.consolePreview .previewContent i { background:#65f4d0; height:2px; }
++.consolePreview .previewContent i:nth-child(2) { background:#aa80ff; }
++.consolePreview .previewContent i:nth-child(3) { border-color:#294269; background:#111c36; height:12px; }
++.previewPrompt { position:absolute; right:12px; top:7px; font-family:monospace; color:#65f4d0; font-size:15px; }
++@media(max-width:480px) { .colorButton { gap:5px; font-size:12px; } .cubeRow { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 diff --git a/packages/client/ui-theme/src/client/AppearanceRow.tsx b/packages/client/ui-theme/src/client/AppearanceRow.tsx
-index b1db97d009..a4145245e9 100644
+index b1db97d009..68d33e55dd 100644
 --- a/packages/client/ui-theme/src/client/AppearanceRow.tsx
 +++ b/packages/client/ui-theme/src/client/AppearanceRow.tsx
-@@ -32,6 +32,7 @@ const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof Ic
+@@ -1,63 +1,70 @@
+-/**
+- * Appearance preference row registered into the General section item slot
+- * (figma 501:30012 'Frame 2117131228'): title + three preference cubes.
+- * Registered by this package — the theme feature owns its own settings
+- * surface. Selection follows the persisted preference, never the resolved
+- * active theme.
+- */
++/** Appearance controls: independent base palette and exclusive installed styles. */
+ import clsx from 'clsx'
+ import {
+   IconDarkOutline16, IconFollowsystemOutline16, IconLightOutline16,
+ } from '@deepseek-ai/dsh-client-ui-primitives'
+ import type { PropsLocale, PropsRuntime, PropsStore } from '@deepseek-ai/dsh-client-ui-slots'
+-import type { ThemePreference } from '../theme-settings.ts'
+ import type { ThemeKey } from './locales.ts'
+ import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+ import type { createAppearanceRowStore } from './settings-store.ts'
+ import css from './AppearanceRow.module.css'
+ 
+-/** Injected business face: the preference write (t rides the standard locale seat). */
++/** Appearance actions supplied by the theme owner. */
+ export interface AppearanceRowInjected {
+-  /** Switch the theme preference. */
+-  setTheme: (id: ThemePreference) => void
++  setTheme: (id: import('../theme-settings.ts').ThemePreference) => void
++  setColorPreference?: (id: 'light' | 'dark' | 'system') => void
++  setAppearanceStyle?: (id: 'default' | 'arcade' | 'code-console') => void
+ }
+ 
+-/** Full component props: runtime share + store share + locale seat + injected face. */
++/** Standard slot props with a presentation-only store mirror. */
+ export type AppearanceRowComponentProps =
+   PropsRuntime<'settings.general.item'> & PropsStore<ReturnType<typeof createAppearanceRowStore>>
+   & PropsLocale<'settings.theme'> & AppearanceRowInjected
+ 
+-/** Cube order and icons (figma 501:30015-30017: Light, Dark, System). */
+-const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof IconLightOutline16 }[] = [
++const COLORS = [
    { id: 'light', labelKey: 'appearance.light', Icon: IconLightOutline16 },
    { id: 'dark', labelKey: 'appearance.dark', Icon: IconDarkOutline16 },
    { id: 'system', labelKey: 'appearance.system', Icon: IconFollowsystemOutline16 },
-+  { id: 'arcade', labelKey: 'appearance.arcade', Icon: IconDarkOutline16 },
++] as const
++const STYLES: readonly { id: 'default' | 'arcade' | 'code-console'; labelKey: ThemeKey }[] = [
++  { id: 'default', labelKey: 'appearance.default' },
++  { id: 'arcade', labelKey: 'appearance.arcade' },
++  { id: 'code-console', labelKey: 'appearance.console' },
  ]
  
- /**
+-/**
+- * Render the Appearance row.
+- * @param props - composed slot props.
+- * @returns the row element tree.
+- */
+-export function AppearanceRow({ t, setTheme, useStore }: AppearanceRowComponentProps) {
++/** Render palette segments and small preview buttons without a second enable switch. */
++export function AppearanceRow({ t, setTheme, setColorPreference, setAppearanceStyle, useStore }: AppearanceRowComponentProps) {
+   const preference = useStore(s => s.preference)
++  const color = useStore(s => s.colorPreference)
++  const consoleAvailable = useStore(s => s.consoleAvailable)
++  const style = preference === 'arcade' || preference === 'code-console' ? preference : 'default'
+   return (
+     <div className={css.group}>
+       <div className={css.title}>{t('appearance.title')}</div>
+-      <div className={css.cubeRow}>
+-        {CUBES.map(({ id, labelKey, Icon }) => (
+-          <button
+-            key={id}
+-            type="button"
+-            className={clsx(css.themeCube, preference === id && css.selected)}
+-            aria-pressed={preference === id}
+-            onClick={() => { setTheme(id) }}
+-          >
+-            <Icon />
+-            {t(labelKey)}
++      <div className={css.label}>{t('appearance.colors')}</div>
++      <div className={css.colorRow} role="group" aria-label={t('appearance.colors')}>
++        {COLORS.map(({ id, labelKey, Icon }) => (
++          <button key={id} type="button" className={clsx(css.colorButton, color === id && css.selected)}
++            aria-pressed={color === id} onClick={() => { (setColorPreference ?? setTheme)(id) }}>
++            <Icon />{t(labelKey)}
+           </button>
+         ))}
+       </div>
++      <div className={css.label}>{t('appearance.styles')}</div>
++      <div className={css.cubeRow} role="group" aria-label={t('appearance.styles')}>
++        {STYLES.filter(item => item.id !== 'code-console' || consoleAvailable).map(({ id, labelKey }) => (
++          <button key={id} type="button" className={clsx(css.themeCube, style === id && css.selected)}
++            aria-pressed={style === id} onClick={() => { setAppearanceStyle ? setAppearanceStyle(id) : setTheme(id === 'default' ? color : id) }}>
++            <span className={clsx(css.preview, id === 'arcade' ? css.arcadePreview : id === 'code-console' ? css.consolePreview : css.defaultPreview)} aria-hidden="true">
++              <span className={css.previewRail} /><span className={css.previewContent}><i /><i /><i /></span>
++              {id === 'arcade' && <span className={css.previewWhale} />}
++              {id === 'code-console' && <span className={css.previewPrompt}>&gt;_</span>}
++            </span>
++            <span className={css.caption}>{t(labelKey)}<span className={css.check} aria-hidden="true">{style === id ? '✓' : ''}</span></span>
++          </button>
++        ))}
++      </div>
++      <div className={css.note}>{t('appearance.darkNote')}</div>
+     </div>
+   )
+ }
 diff --git a/packages/client/ui-theme/src/client/index.ts b/packages/client/ui-theme/src/client/index.ts
-index 82513a91d7..a86d0ad303 100644
+index 82513a91d7..14947d7f17 100644
 --- a/packages/client/ui-theme/src/client/index.ts
 +++ b/packages/client/ui-theme/src/client/index.ts
-@@ -118,6 +118,7 @@ declare module '@deepseek-ai/cordis' {
+@@ -74,6 +74,8 @@ export interface ThemeDefinition {
+ export interface ThemeSnapshot {
+   /** The persisted preference (may be `system`). */
+   preference: ThemePreference
++  /** Remembered color choice independent of the appearance style. */
++  colorPreference?: 'light' | 'dark' | 'system'
+   /**
+    * The resolved active theme (`system` resolved via prefers-color-scheme)
+    * with override layers folded into its tokens (seq order, later layers win
+@@ -118,6 +120,7 @@ declare module '@deepseek-ai/cordis' {
  const BUILTIN_THEMES: readonly ThemeDefinition[] = Object.freeze([
    Object.freeze({ id: 'light', colorScheme: 'light' as const, tokens: Object.freeze({}) }),
    Object.freeze({ id: 'dark', colorScheme: 'dark' as const, tokens: Object.freeze({}) }),
@@ -1351,7 +1568,54 @@ index 82513a91d7..a86d0ad303 100644
  ])
  
  const BUILTIN_INSPECT_TOKENS: readonly ThemeTokenInspection[] = Object.freeze([
-@@ -368,6 +369,25 @@ function dynamicToken(name: string): ThemeTokenInspection {
+@@ -224,15 +227,31 @@ export class ThemeRuntime {
+       throw new Error(`theme "${id}" is not registered`)
+     }
+     if (this.preference === id) return
++    if ((id === 'arcade' || id === 'code-console')
++      && (this.preference === 'light' || this.preference === 'dark' || this.preference === 'system')) {
++      void this.host.set('colorPreference', this.preference)
++    }
+     this.preference = id as ThemePreference
+     if (isThemePreference(id)) void this.host.set(THEME_PREFERENCE_FIELD, id)
+     this.publish()
+   }
+ 
++  /** Change the remembered base palette without disabling an active appearance style. */
++  setColorPreference(id: 'light' | 'dark' | 'system'): void {
++    void this.host.set('colorPreference', id)
++    if (this.preference === 'arcade' || this.preference === 'code-console') this.publish()
++    else this.setTheme(id)
++  }
++
++  /** Select one appearance style; default restores the remembered palette. */
++  setAppearanceStyle(id: 'default' | 'arcade' | 'code-console'): void {
++    this.setTheme(id === 'default' ? (this.host.getSnapshot().value?.colorPreference ?? 'system') : id)
++  }
++
+   /** Adopt the scope's accepted durable preference without writing it back. */
+   private adopt(): void {
+     const section = this.host.getSnapshot().value
+-    if (section === undefined || this.preference === section.preference) return
++    if (section === undefined) return
+     this.preference = section.preference
+     this.publish()
+   }
+@@ -296,10 +315,13 @@ export class ThemeRuntime {
+     // Both built-ins always exist; a registered preference id resolves or has
+     // been reset by its disposer, so the lookup cannot miss.
+     const active = this.themes.find(t => t.id === resolvedId)
++      ?? (resolvedId === 'code-console' ? this.themes.find(t => t.id === 'dark') : undefined)
+     /* v8 ignore next 2 -- needs a registry without light/dark, which register()/dispose() cannot produce */
+     if (active === undefined) throw new Error(`theme registry lost "${resolvedId}"`)
+     return Object.freeze({
+       preference: this.preference,
++      colorPreference: this.preference === 'light' || this.preference === 'dark' || this.preference === 'system'
++        ? this.preference : (this.host.getSnapshot().value?.colorPreference ?? 'system'),
+       active: this.composeActive(active),
+       themes: Object.freeze([...this.themes]),
+       revision: this.revision,
+@@ -368,6 +390,25 @@ function dynamicToken(name: string): ThemeTokenInspection {
    }
  }
  
@@ -1377,7 +1641,7 @@ index 82513a91d7..a86d0ad303 100644
  /**
   * Add a short-lived hit marker at primary pointer clicks while the personal
   * arcade theme is active. Editable controls are excluded so placing a caret
-@@ -377,6 +397,7 @@ function dynamicToken(name: string): ThemeTokenInspection {
+@@ -377,6 +418,7 @@ function dynamicToken(name: string): ThemeTokenInspection {
  function installArcadePointerFeedback(): () => void {
    if (typeof document === 'undefined') return () => {}
    const onPointerDown = (event: PointerEvent): void => {
@@ -1385,7 +1649,7 @@ index 82513a91d7..a86d0ad303 100644
      if (event.button !== 0) return
      const target = event.target
      if (!(target instanceof Element) || target.closest("textarea, input, [contenteditable='true']") !== null) return
-@@ -396,47 +417,60 @@ function installArcadePointerFeedback(): () => void {
+@@ -396,47 +438,60 @@ function installArcadePointerFeedback(): () => void {
   * Keep expanded detail surfaces below the sticky composer as the viewport,
   * composer, or panel content changes. The measured value is presentation
   * state only; the panel keeps scrolling its own long body instead of
@@ -1472,7 +1736,7 @@ index 82513a91d7..a86d0ad303 100644
      }
    }
    const schedule = (): void => {
-@@ -458,11 +492,9 @@ function installArcadePanelLayout(): () => void {
+@@ -458,11 +513,9 @@ function installArcadePanelLayout(): () => void {
      resizeObserver?.disconnect()
      const composer = document.querySelector<HTMLElement>("[data-phase] [class*='composerSeat']")
      if (composer !== null) resizeObserver?.observe(composer)
@@ -1485,7 +1749,7 @@ index 82513a91d7..a86d0ad303 100644
    }
    /* v8 ignore next 3 -- every test host (jsdom and node) that provides
       document also provides MutationObserver, so this fallback arm is
-@@ -485,13 +517,80 @@ function installArcadePanelLayout(): () => void {
+@@ -485,13 +538,80 @@ function installArcadePanelLayout(): () => void {
    }
  }
  
@@ -1568,7 +1832,7 @@ index 82513a91d7..a86d0ad303 100644
  
  interface ResizeDrag {
    pointerId: number
-@@ -500,68 +599,63 @@ interface ResizeDrag {
+@@ -500,68 +620,63 @@ interface ResizeDrag {
    startY: number
    originWidth: number
    originHeight: number
@@ -1670,7 +1934,7 @@ index 82513a91d7..a86d0ad303 100644
      )
      return { width: Math.min(width, maxWidth), height: Math.min(height, maxHeight) }
    }
-@@ -570,7 +664,10 @@ function installArcadePanelResize(): () => void {
+@@ -570,7 +685,10 @@ function installArcadePanelResize(): () => void {
      if (event.button !== 0) return
      const target = event.target
      if (!(target instanceof Element)) return
@@ -1682,7 +1946,7 @@ index 82513a91d7..a86d0ad303 100644
      const panel = resizablePanel(target)
      if (panel === null) return
      const rect = panel.getBoundingClientRect()
-@@ -579,6 +676,7 @@ function installArcadePanelResize(): () => void {
+@@ -579,6 +697,7 @@ function installArcadePanelResize(): () => void {
      const south = event.clientY >= rect.bottom - RESIZE_EDGE
      const north = event.clientY <= rect.top + RESIZE_EDGE
      if (!east && !west && !south && !north) return
@@ -1690,7 +1954,7 @@ index 82513a91d7..a86d0ad303 100644
      drag = {
        pointerId: event.pointerId,
        panel,
-@@ -586,12 +684,21 @@ function installArcadePanelResize(): () => void {
+@@ -586,12 +705,21 @@ function installArcadePanelResize(): () => void {
        startY: event.clientY,
        originWidth: rect.width,
        originHeight: rect.height,
@@ -1713,7 +1977,7 @@ index 82513a91d7..a86d0ad303 100644
      panel.setAttribute('data-dsh-resizing', 'true')
      event.preventDefault()
    }
-@@ -608,18 +715,51 @@ function installArcadePanelResize(): () => void {
+@@ -608,18 +736,51 @@ function installArcadePanelResize(): () => void {
      if (drag.north) height = drag.originHeight - dy
      width = Math.max(RESIZE_MIN_WIDTH, width)
      height = Math.max(RESIZE_MIN_HEIGHT, height)
@@ -1769,7 +2033,7 @@ index 82513a91d7..a86d0ad303 100644
    }
  
    // Edge-zone cursor feedback while hovering (no active drag).
-@@ -661,6 +801,27 @@ function installArcadePanelResize(): () => void {
+@@ -661,6 +822,27 @@ function installArcadePanelResize(): () => void {
    }
  }
  
@@ -1797,7 +2061,7 @@ index 82513a91d7..a86d0ad303 100644
  /** Per-panel window-chrome record kept by the dock while a panel is parked. */
  interface DockEntry {
    side: 'left' | 'right'
-@@ -698,8 +859,12 @@ function installArcadeWindowChrome(): () => void {
+@@ -698,8 +880,12 @@ function installArcadeWindowChrome(): () => void {
  
    const panelTitle = (panel: HTMLElement): string => {
      const row = panel.closest<HTMLElement>('[data-tool], [data-variant="think"]')
@@ -1812,7 +2076,7 @@ index 82513a91d7..a86d0ad303 100644
      return text.slice(0, 24) || '面板'
    }
  
-@@ -715,9 +880,7 @@ function installArcadeWindowChrome(): () => void {
+@@ -715,9 +901,7 @@ function installArcadeWindowChrome(): () => void {
  
    const minimizedPanels = (side: 'left' | 'right'): HTMLElement[] => {
      const out: HTMLElement[] = []
@@ -1823,7 +2087,7 @@ index 82513a91d7..a86d0ad303 100644
        // A panel whose attribute was set directly (not via a command) has no
        // recorded side; park it on the default left rail.
        const panelSide = entries.get(panel)?.side ?? 'left'
-@@ -773,7 +936,7 @@ function installArcadeWindowChrome(): () => void {
+@@ -773,7 +957,7 @@ function installArcadeWindowChrome(): () => void {
    const onCommand = (event: Event): void => {
      const target = event.target
      if (!(target instanceof Element)) return
@@ -1832,7 +2096,7 @@ index 82513a91d7..a86d0ad303 100644
      if (panel === null) return
      const command = (event as CustomEvent).detail as { command?: string } | undefined
      if (command?.command === 'minimize') {
-@@ -835,10 +998,12 @@ interface BodyDrag {
+@@ -835,10 +1019,12 @@ interface BodyDrag {
  const BODY_DRAG_THRESHOLD = 6
  
  /**
@@ -1849,7 +2113,7 @@ index 82513a91d7..a86d0ad303 100644
   * positioning is cleared and the pinned rail rules take over.
   * @returns a disposer that removes all listeners.
   */
-@@ -850,11 +1015,21 @@ function installArcadePanelBodyDrag(): () => void {
+@@ -850,11 +1036,21 @@ function installArcadePanelBodyDrag(): () => void {
      if (event.button !== 0) return
      const target = event.target
      if (!(target instanceof Element)) return
@@ -1873,7 +2137,7 @@ index 82513a91d7..a86d0ad303 100644
      drag = {
        pointerId: event.pointerId,
        panel,
-@@ -875,9 +1050,14 @@ function installArcadePanelBodyDrag(): () => void {
+@@ -875,9 +1071,14 @@ function installArcadePanelBodyDrag(): () => void {
      if (!drag.moved && Math.abs(dx) < BODY_DRAG_THRESHOLD && Math.abs(dy) < BODY_DRAG_THRESHOLD) return
      drag.moved = true
      const panel = drag.panel
@@ -1890,7 +2154,7 @@ index 82513a91d7..a86d0ad303 100644
      panel.style.right = 'auto'
      panel.style.bottom = 'auto'
      panel.style.margin = '0'
-@@ -893,10 +1073,25 @@ function installArcadePanelBodyDrag(): () => void {
+@@ -893,10 +1094,25 @@ function installArcadePanelBodyDrag(): () => void {
      panel.style.removeProperty('userSelect')
      panel.removeAttribute('data-dsh-body-dragging')
      if (!panel.isConnected) return
@@ -1919,7 +2183,7 @@ index 82513a91d7..a86d0ad303 100644
      // Clear the temporary inline placement once the product re-renders with
      // its own --dsh-panel-* variables (the pinned rules take over).
      window.setTimeout(() => {
-@@ -926,6 +1121,139 @@ function installArcadePanelBodyDrag(): () => void {
+@@ -926,6 +1142,139 @@ function installArcadePanelBodyDrag(): () => void {
    }
  }
  
@@ -2059,7 +2323,7 @@ index 82513a91d7..a86d0ad303 100644
  /**
   * Required services: settings transport plus slots/locale for the Appearance
   * row. `remote` carries the forwarded settings invalidation that
-@@ -943,11 +1271,7 @@ export function apply(ctx: ClientContext): void {
+@@ -943,18 +1292,14 @@ export function apply(ctx: ClientContext): void {
    const host = ctx.settingsScope.bind<ThemeSettings>({ namespace: THEME_SETTINGS_NAMESPACE })
    const theme = new ThemeRuntime(ctx, host)
    ctx.provide('theme', theme)
@@ -2072,26 +2336,90 @@ index 82513a91d7..a86d0ad303 100644
  
    ctx.effect(() => ctx.locale.register(SETTINGS_NS, { zh, en }), 'ui-theme: settings row dictionaries')
  
+   const store = createAppearanceRowStore()
+   let bound: BoundActions<typeof store> | undefined
+   const sync = (snapshot: ThemeSnapshot): void => {
+-    bound?.sync(snapshot.preference, snapshot.revision)
++    bound?.sync(snapshot.preference, snapshot.revision, snapshot.colorPreference, snapshot.themes.some(t => t.id === 'code-console'))
+   }
+   ctx.on('theme/change', sync)
+   const injected = (actions: BoundActions<typeof store>): AppearanceRowInjected => {
+@@ -964,6 +1309,8 @@ export function apply(ctx: ClientContext): void {
+     sync(theme.getTheme())
+     return {
+       setTheme: (id) => { theme.setTheme(id) },
++      setColorPreference: (id) => { theme.setColorPreference(id) },
++      setAppearanceStyle: (id) => { theme.setAppearanceStyle(id) },
+     }
+   }
+   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
 diff --git a/packages/client/ui-theme/src/client/locales.ts b/packages/client/ui-theme/src/client/locales.ts
-index 6df56ceb96..49e66ff6b2 100644
+index 6df56ceb96..c058faf2a7 100644
 --- a/packages/client/ui-theme/src/client/locales.ts
 +++ b/packages/client/ui-theme/src/client/locales.ts
-@@ -6,6 +6,7 @@ export const zh = {
+@@ -6,6 +6,12 @@ export const zh = {
    'appearance.light': '浅色',
    'appearance.dark': '深色',
    'appearance.system': '跟随系统',
 +  'appearance.arcade': '像素霓虹',
++  'appearance.colors': '颜色模式',
++  'appearance.styles': '界面风格',
++  'appearance.default': '默认',
++  'appearance.console': '数码控制台',
++  'appearance.darkNote': '像素霓虹与数码控制台使用深色配色；切回默认风格后恢复上方颜色模式。',
  } satisfies Record<string, string>
  
  /** The settings.theme namespace key union. */
-@@ -17,4 +18,5 @@ export const en = {
+@@ -17,4 +23,10 @@ export const en = {
    'appearance.light': 'Light',
    'appearance.dark': 'Dark',
    'appearance.system': 'System',
 +  'appearance.arcade': 'Pixel neon',
++  'appearance.colors': 'Color mode',
++  'appearance.styles': 'Interface style',
++  'appearance.default': 'Default',
++  'appearance.console': 'Digital console',
++  'appearance.darkNote': 'Pixel neon and Digital console use a dark palette. Default restores your color mode above.',
  } satisfies Record<ThemeKey, string>
+diff --git a/packages/client/ui-theme/src/client/settings-store.ts b/packages/client/ui-theme/src/client/settings-store.ts
+index e4c76154e5..1b6b800f90 100644
+--- a/packages/client/ui-theme/src/client/settings-store.ts
++++ b/packages/client/ui-theme/src/client/settings-store.ts
+@@ -12,11 +12,14 @@ export interface AppearanceRowState {
+   preference: ThemePreference
+   /** Service revision; -1 until first sync so revision 0 lands as a change. */
+   revision: number
++  /** Independent base palette and installed console availability. */
++  colorPreference: 'light' | 'dark' | 'system'
++  consoleAvailable: boolean
+ }
+ 
+ /** Declared action shape giving the exported factory a stable return type. */
+ type AppearanceRowActions = {
+-  sync: (draft: AppearanceRowState, preference: ThemePreference, revision: number) => void
++  sync: (draft: AppearanceRowState, preference: ThemePreference, revision: number, colorPreference?: 'light' | 'dark' | 'system', consoleAvailable?: boolean) => void
+ }
+ 
+ /**
+@@ -25,12 +28,14 @@ type AppearanceRowActions = {
+  */
+ export function createAppearanceRowStore(): EngineStoreHandle<AppearanceRowState, AppearanceRowActions> {
+   return defineStore({
+-    init: (): AppearanceRowState => ({ preference: 'system', revision: -1 }),
++    init: (): AppearanceRowState => ({ preference: 'system', revision: -1, colorPreference: 'system', consoleAvailable: false }),
+     actions: {
+-      sync: (d, preference: ThemePreference, revision: number) => {
++      sync: (d, preference: ThemePreference, revision: number, colorPreference?: 'light' | 'dark' | 'system', consoleAvailable = false) => {
+         if (revision <= d.revision) return
+         d.preference = preference
+         d.revision = revision
++        d.colorPreference = colorPreference ?? (preference === 'light' || preference === 'dark' ? preference : 'system')
++        d.consoleAvailable = consoleAvailable
+       },
+     },
+   })
 diff --git a/packages/client/ui-theme/src/styles/personal.css b/packages/client/ui-theme/src/styles/personal.css
-index c77d627c9b..a1dfff5eeb 100644
+index c77d627c9b..07b33a06e9 100644
 --- a/packages/client/ui-theme/src/styles/personal.css
 +++ b/packages/client/ui-theme/src/styles/personal.css
 @@ -44,7 +44,7 @@
@@ -3610,7 +3938,7 @@ index c77d627c9b..a1dfff5eeb 100644
  /* Taskbar docks on both free flanks of the transcript. Each side holds a
     stack button that opens the list of minimized panels parked there. */
  .rizen-dock {
-@@ -1943,3 +2201,897 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
+@@ -1943,3 +2201,895 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
    background: rgba(124, 231, 255, 0.08);
    color: var(--rizen-cyan-bright);
  }
@@ -4421,8 +4749,6 @@ index c77d627c9b..a1dfff5eeb 100644
 +body[data-dsh-arcade] [class*='sidebarCol'] button[class*='newSession']::before {content:'';width:28px;height:28px;background:url('/assets/whale-workbench/lanxi-pixel-wink.svg') center/contain no-repeat;image-rendering:pixelated;}
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']::before {background-image:url('/assets/whale-workbench/lanxi-pixel-calm.svg');background-size:contain;background-position:center;animation:none;image-rendering:pixelated;}
 +body[data-dsh-arcade] [data-arcade-start-menu]>button:first-of-type::after {content:'';width:26px;height:26px;background:url('/assets/whale-workbench/lanxi-pixel-wink.svg') center/contain no-repeat;image-rendering:pixelated;}
-+body[data-dsh-arcade] [class*='themeCube']:last-child svg {visibility:hidden;}
-+body[data-dsh-arcade] [class*='themeCube']:last-child {background-image:url('/assets/whale-workbench/lanxi-pixel-calm.svg');background-size:26px;background-repeat:no-repeat;background-position:center 12px;}
 +@container dsh-home (max-width:700px) {body[data-dsh-arcade] [data-arcade-option-title] {font-size:11px;}body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] {gap:6px;}body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] small {display:block;max-width:68px;font-size:10px;}}
 +@container dsh-home (max-width:460px) {body[data-dsh-arcade] [data-arcade-option-title] {font-size:9px;}body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] small {display:none;}body[data-dsh-arcade] [data-arcade-start-menu]>button:first-of-type::after {width:20px;height:20px;}}
 +
@@ -4509,7 +4835,7 @@ index c77d627c9b..a1dfff5eeb 100644
 +  body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] small {display:block;max-width:110px;font-size:11px;}
 +}
 diff --git a/packages/client/ui-theme/src/theme-settings.ts b/packages/client/ui-theme/src/theme-settings.ts
-index c2c268e21f..863a9dee05 100644
+index c2c268e21f..1f0f11ac70 100644
 --- a/packages/client/ui-theme/src/theme-settings.ts
 +++ b/packages/client/ui-theme/src/theme-settings.ts
 @@ -3,7 +3,7 @@
@@ -4517,10 +4843,25 @@ index c2c268e21f..863a9dee05 100644
  
  /** Built-in preferences accepted at the registry and settings boundaries. */
 -export const THEME_PREFERENCES = ['light', 'dark', 'system'] as const
-+export const THEME_PREFERENCES = ['light', 'dark', 'system', 'arcade'] as const
++export const THEME_PREFERENCES = ['light', 'dark', 'system', 'arcade', 'code-console'] as const
  
  /** Settings namespace owned by the theme plugin. */
  export const THEME_SETTINGS_NAMESPACE = 'ui-theme'
+@@ -21,11 +21,14 @@ export const DEFAULT_PREFERENCE: ThemePreference = 'system'
+ export interface ThemeSettings {
+   /** Selected built-in preference. */
+   preference: ThemePreference
++  /** Color choice restored when leaving a dark appearance style. */
++  colorPreference?: 'light' | 'dark' | 'system'
+ }
+ 
+ /** Durable theme schema; also the wire envelope the browser scope validates against. */
+ export const ThemeSettingsSchema: z<ThemeSettings> = z.object({
+   [THEME_PREFERENCE_FIELD]: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE),
++  colorPreference: z.union(['light', 'dark', 'system']).default('system'),
+ })
+ 
+ /**
 diff --git a/packages/client/ui-tool/src/client/tool/components/ToolRow.module.css b/packages/client/ui-tool/src/client/tool/components/ToolRow.module.css
 index 1df62039a3..34186dad3a 100644
 --- a/packages/client/ui-tool/src/client/tool/components/ToolRow.module.css

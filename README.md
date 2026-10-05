@@ -257,3 +257,10 @@ node build.mjs
 
 - 本仓库代码、素材包装与文档：**MIT**（见 [LICENSE](LICENSE)）
 - 像素字体 **Fusion Pixel** © TakWolf：**OFL-1.1**（见 [assets/fonts/OFL-fusion-pixel.txt](assets/fonts/OFL-fusion-pixel.txt)）
+
+
+### 外观设置整合（Git 开发版）
+
+源码集成补丁将外观分为「颜色模式」和「界面风格」：默认 / 像素霓虹 / 数码控制台互斥。两种自定义风格使用深色配色，返回默认后恢复原来的浅色、深色或跟随系统选择。手机设置改为顶部横向导航。
+
+`harness-integration/code-console/` 提供与此补丁配套的可选控制台插件源码和浏览器构建。只在安装该插件时显示控制台按钮；不要将它直接安装到未应用补丁的 Harness。此开发版补丁尚未更新 v0.3.2 的固定发布包。
