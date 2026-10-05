@@ -1,6 +1,6 @@
 {
   "name": "dsh-skin-digital-arcade",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Pixel neon arcade theme for DeepSeek Harness with opt-in appearance, whale-girl artwork, local custom display names and telemetry HUD integration",
   "type": "module",
   "main": "index.js",

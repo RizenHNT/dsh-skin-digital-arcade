@@ -92,7 +92,20 @@ node tools/apply-harness-integration.mjs /path/to/deepseek-harness --apply
 
 新人物插画由内置图像工具按用户提供的鲸鱼娘素材补全；像素头像为项目 SVG。原素材保留。
 
+## 手机与 Tailscale
+
+远程代理应指向保存正式会话的实例，而不是隔离测试端口。Tailscale Serve 保持私有 tailnet HTTPS；Harness 继续监听 loopback。启动参数需同时声明准确的 `--trusted-host <tailnet-hostname>` 和 `--trusted-origin https://<tailnet-hostname>`。不要用通配符或关闭请求信任检查。
+
+外观选择与自定义名字存于浏览器；手机首次访问时可在设置 → 外观选择「像素霓虹」。
+
 ## 更新记录
+
+### v0.3.2
+
+- 手机首页改为完整宽度的 01/02/03 菜单，显示当前工作区和模式；触摸行至少 44px 高。
+- 适配紧凑人物卡和名字框，保留街机效果与页面可读性。
+- 补充远程正式端口与准确主机/来源配置说明。
+
 
 ### v0.3.1
 

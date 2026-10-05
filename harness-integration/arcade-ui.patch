@@ -2091,7 +2091,7 @@ index 6df56ceb96..49e66ff6b2 100644
 +  'appearance.arcade': 'Pixel neon',
  } satisfies Record<ThemeKey, string>
 diff --git a/packages/client/ui-theme/src/styles/personal.css b/packages/client/ui-theme/src/styles/personal.css
-index c77d627c9b..a76c4b1429 100644
+index c77d627c9b..a1dfff5eeb 100644
 --- a/packages/client/ui-theme/src/styles/personal.css
 +++ b/packages/client/ui-theme/src/styles/personal.css
 @@ -44,7 +44,7 @@
@@ -3289,7 +3289,7 @@ index c77d627c9b..a76c4b1429 100644
      animation-duration: 0.001ms !important;
      animation-iteration-count: 1 !important;
      scroll-behavior: auto !important;
-@@ -1800,42 +1798,302 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
+@@ -1800,44 +1798,304 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
    }
  }
  
@@ -3322,9 +3322,13 @@ index c77d627c9b..a76c4b1429 100644
 -body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-minimized='true'] {
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel][data-dsh-panel-minimized='true'],
 +body[data-dsh-arcade] [data-phase] [class*='thinkBody'][data-dsh-panel-minimized='true'] {
-+  display: none;
-+}
-+
+   display: none;
+ }
+ 
+-/* Maximized panels fill the viewport like a fullscreen window; the explicit
+-   overrides win over the pinned rail rules while the window is enlarged. */
+-body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
+-body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
 +/* Maximized panels become a larger centered dialog bubble over the
 +   transcript — readable without scrolling the page — not a fullscreen
 +   takeover. The band above the composer is the window's slot, and the stage is
@@ -3333,24 +3337,27 @@ index c77d627c9b..a76c4b1429 100644
 +   eye. The explicit overrides win over the pinned rail rules. */
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
 +body[data-dsh-arcade] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
-+  position: fixed !important;
+   position: fixed !important;
+-  inset: 10px !important;
+-  width: auto !important;
+-  height: auto !important;
 +  top: 50% !important;
 +  right: auto !important;
 +  bottom: auto !important;
 +  left: var(--dsh-stage-centre, 50%) !important;
 +  width: min(calc(var(--dsh-stage-width, 100vw) - 48px), 1400px) !important;
 +  height: min(calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 1000px) !important;
-+  max-width: none !important;
-+  max-height: none !important;
-+  margin: 0 !important;
+   max-width: none !important;
+   max-height: none !important;
+   margin: 0 !important;
 +  /* Centered on the conversation stage and inside the band above the composer,
 +     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
 +     the composer band keeps a maximized window off the input console. */
 +  transform: translate(-50%, calc(-50% - var(--dsh-composer-reserve, 186px) / 2)) !important;
-+  z-index: 500 !important;
-+  overflow: auto;
-+}
-+
+   z-index: 500 !important;
+   overflow: auto;
+ }
+ 
 +/* Inside a floating window the reader controls the width, so a diff line wraps
 +   instead of forcing a horizontal scroll through a narrow card. The hanging
 +   indent keeps a wrapped continuation under the text rather than under the
@@ -3467,33 +3474,26 @@ index c77d627c9b..a76c4b1429 100644
 +}
 +
 +body[data-dsh-arcade] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-panel-minimized='true'] {
-   display: none;
- }
- 
--/* Maximized panels fill the viewport like a fullscreen window; the explicit
--   overrides win over the pinned rail rules while the window is enlarged. */
--body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
--body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximized='true'] {
++  display: none;
++}
++
 +body[data-dsh-arcade] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-panel-maximized='true'] {
-   position: fixed !important;
--  inset: 10px !important;
--  width: auto !important;
--  height: auto !important;
++  position: fixed !important;
 +  top: 50% !important;
 +  right: auto !important;
 +  bottom: auto !important;
 +  left: var(--dsh-stage-centre, 50%) !important;
 +  width: min(calc(var(--dsh-stage-width, 100vw) - 48px), 1400px) !important;
 +  height: min(calc(100vh - var(--dsh-composer-reserve, 186px) - 24px), 1000px) !important;
-   max-width: none !important;
-   max-height: none !important;
-   margin: 0 !important;
++  max-width: none !important;
++  max-height: none !important;
++  margin: 0 !important;
 +  overflow: auto;
 +  /* Centered on the conversation stage and inside the band above the composer,
 +     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
 +     the composer band keeps a maximized window off the input console. */
 +  transform: translate(-50%, calc(-50% - var(--dsh-composer-reserve, 186px) / 2)) !important;
-   z-index: 500 !important;
++  z-index: 500 !important;
 +}
 +
 +body[data-dsh-arcade] [data-dsh-detail-overlay-root] [data-dsh-detail-panel='think'][data-dsh-resizing='true'] {
@@ -3551,7 +3551,7 @@ index c77d627c9b..a76c4b1429 100644
 +  max-width: none !important;
 +  max-height: none !important;
 +  margin: 0 !important;
-   overflow: auto;
++  overflow: auto;
 +  /* Centered on the conversation stage and inside the band above the composer,
 +     rather than on the viewport: the sidebar makes `50vw` read off-centre, and
 +     the composer band keeps a maximized window off the input console. */
@@ -3605,10 +3605,12 @@ index c77d627c9b..a76c4b1429 100644
 +body[data-dsh-arcade] [data-dsh-detail-overlay-root] [data-dsh-detail-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
 +  position: relative;
 +  z-index: 1;
- }
- 
++}
++
  /* Taskbar docks on both free flanks of the transcript. Each side holds a
-@@ -1943,3 +2201,878 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
+    stack button that opens the list of minimized panels parked there. */
+ .rizen-dock {
+@@ -1943,3 +2201,897 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
    background: rgba(124, 231, 255, 0.08);
    color: var(--rizen-cyan-bright);
  }
@@ -4487,6 +4489,25 @@ index c77d627c9b..a76c4b1429 100644
 +
 +/* Clip scene decorations without creating a focus-scroll container. */
 +body[data-dsh-arcade] [data-whale-scene] { overflow:clip; }
++
++/* On phones, keep all three choices and their values in full-width touch rows. */
++@container dsh-home (max-width:460px) {
++  body[data-dsh-arcade] [data-whale-scene] {grid-template-columns:minmax(0,1fr) 116px;grid-template-rows:auto auto auto auto auto;gap:8px 12px;padding:16px 12px;min-height:0;}
++  body[data-dsh-arcade] [data-whale-copy] {display:contents;}
++  body[data-dsh-arcade] [data-whale-eyebrow] {grid-column:1;grid-row:1;margin:0;font-size:10px;letter-spacing:0;}
++  body[data-dsh-arcade] [data-arcade-title] {grid-column:1;grid-row:2;margin:0;}
++  body[data-dsh-arcade] [data-whale-headline] {grid-column:1;grid-row:3;}
++  body[data-dsh-arcade] .whale-welcome {grid-column:1;grid-row:4;margin:0;font-size:12px;}
++  body[data-dsh-arcade] [data-whale-art] {grid-column:2;grid-row:1 / 5;align-self:center;min-height:210px;height:210px;}
++  body[data-dsh-arcade] [data-whale-portrait] {width:112px;height:164px;}
++  body[data-dsh-arcade] [data-whale-signature] {width:100%;right:0;bottom:4px;}
++  body[data-dsh-arcade] [data-whale-signature] input {width:100%;font-size:12px;}
++  body[data-dsh-arcade] [data-whale-signature] span {font-size:7px;letter-spacing:0;white-space:nowrap;}
++  body[data-dsh-arcade] [data-arcade-start-menu] {grid-column:1 / -1;grid-row:5;margin-top:12px;max-width:none;width:100%;gap:5px;}
++  body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] {width:100%;min-height:44px;padding:8px;gap:8px;font-size:12px;}
++  body[data-dsh-arcade] [data-arcade-option-title] {font-size:12px;}
++  body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] small {display:block;max-width:110px;font-size:11px;}
++}
 diff --git a/packages/client/ui-theme/src/theme-settings.ts b/packages/client/ui-theme/src/theme-settings.ts
 index c2c268e21f..863a9dee05 100644
 --- a/packages/client/ui-theme/src/theme-settings.ts
