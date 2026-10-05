@@ -96,7 +96,7 @@ node tools/apply-harness-integration.mjs /path/to/deepseek-harness --apply
 
 远程代理应指向保存正式会话的实例，而不是隔离测试端口。Tailscale Serve 保持私有 tailnet HTTPS；Harness 继续监听 loopback。启动参数需同时声明准确的 `--trusted-host <tailnet-hostname>` 和 `--trusted-origin https://<tailnet-hostname>`。不要用通配符或关闭请求信任检查。
 
-外观选择与自定义名字存于浏览器；手机首次访问时可在设置 → 外观选择「像素霓虹」。
+自定义名字只存当前浏览器；外观选择由 Harness 设置保存。手机首次访问时可在设置 → 外观选择「像素霓虹」。
 
 ## 更新记录
 
