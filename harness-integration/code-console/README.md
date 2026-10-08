@@ -8,12 +8,13 @@ The visual layer keeps the conversation and coding controls readable while addin
 
 ## Local install
 
-```powershell
-$env:DSH_HOME = (Resolve-Path .\.dsh).Path
-dsh plugin --profile web add .\dsh-skin-code-console
+Apply the current [Harness source integration patch](../../README.md#完整工作台源码集成) first. Use the same profile and `DSH_HOME` as your existing Web service when installing this local bundle:
+
+```sh
+dsh plugin --profile web add /path/to/dsh-skin-digital-arcade/harness-integration/code-console
 ```
 
-Restart the Web process after installing the bundle, then refresh the page. The package includes a prebuilt `lib/client.js`; run `node build.mjs` after changing `src/client/index.js`.
+Restart the Web process with its existing data directory and launch configuration, then refresh the page. Open Settings → Appearance → Interface style and choose 数码控制台. The package includes a prebuilt `lib/client.js`; run `node build.mjs` in this bundle directory after changing `src/client/index.js`.
 
 ## Scope
 
