@@ -61,7 +61,7 @@ index d16608c856..75322e429d 100644
 @@ -44,6 +45,15 @@
    gap: 16px;
  }
- 
+
 +/* Mobile transcript width belongs to the conversation column. The personal
 +   theme may add desktop rail clearance, but it must not turn this column into
 +   a narrow writing strip on a phone. */
@@ -80,7 +80,7 @@ index 0051f6f7cf..c0c2b24bd5 100644
 +++ b/packages/client/ui-conversation/src/client/chat/ReasoningRow.module.css
 @@ -66,7 +66,17 @@
  }
- 
+
  .thinkBody {
 +  display: flex;
 +  flex-direction: column;
@@ -99,7 +99,7 @@ index 0051f6f7cf..c0c2b24bd5 100644
 @@ -142,6 +152,24 @@
    height: 14px;
  }
- 
+
 +/* The mobile sheet is a conversation-owned surface. Keep its width out of
 +   theme rail variables and remove desktop-only pin affordances. */
 +@media (max-width: 768px) {
@@ -136,7 +136,7 @@ index 50ee90cac5..624643d12c 100644
 @@ -11,6 +11,16 @@ function firstLine(text: string): string {
    return newline === -1 ? text : text.slice(0, newline)
  }
- 
+
 +/**
 + * Top of the sticky composer, or the viewport floor when it is absent. A placed
 + * window stops here so it never covers the console the user types into.
@@ -157,7 +157,7 @@ index 50ee90cac5..624643d12c 100644
 +  width: number
 +  height: number
  }
- 
+
  interface PanelDrag {
 @@ -30,11 +42,15 @@ interface PanelDrag {
    startY: number
@@ -166,14 +166,14 @@ index 50ee90cac5..624643d12c 100644
 +  width: number
 +  height: number
  }
- 
+
  type PanelStyle = CSSProperties & {
    '--dsh-panel-left'?: string
    '--dsh-panel-top'?: string
 +  '--dsh-panel-width'?: string
 +  '--dsh-panel-height'?: string
  }
- 
+
  function PinGlyph({ active }: { active: boolean }) {
 @@ -57,7 +73,6 @@ function PinGlyph({ active }: { active: boolean }) {
   * @returns the reasoning disclosure.
@@ -322,7 +322,7 @@ index 50ee90cac5..624643d12c 100644
 +      '--dsh-panel-height': `${panelOffset.height}px`,
      }
      : undefined
- 
+
 +  const detailPanel = (
 +    <div
 +      ref={detailRef}
@@ -456,20 +456,81 @@ index 50ee90cac5..624643d12c 100644
    )
  }
 diff --git a/packages/client/ui-conversation/src/client/chat/StatsLine.tsx b/packages/client/ui-conversation/src/client/chat/StatsLine.tsx
-index 147d2b7c6c..4fcbffab9c 100644
+index 147d2b7c6c..5133cf3cde 100644
 --- a/packages/client/ui-conversation/src/client/chat/StatsLine.tsx
 +++ b/packages/client/ui-conversation/src/client/chat/StatsLine.tsx
-@@ -221,11 +221,11 @@ export const StatsLine = memo(function StatsLine({ useSession, useProjection, t
+@@ -3,6 +3,7 @@
+ // active conversation scrollport (see ConversationRoot data-conversation-scroll).
+
+ import { Fragment, memo, useLayoutEffect, useMemo, useRef, useState } from 'react'
++import type { CSSProperties } from 'react'
+ import { Tooltip } from '@deepseek-ai/dsh-client-ui-primitives'
+ import type { ConversationSnapshot, UseProjection } from '@deepseek-ai/dsh-client-runtime/client'
+ import type { SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
+@@ -170,13 +171,13 @@ export const StatsLine = memo(function StatsLine({ useSession, useProjection, t
+   const projected = useProjection('sessionStats')
+   const stats = useMemo(() => projected ?? deriveStats(settledNodes), [projected, settledNodes])
+   // Pipe-separated groups (figma stats strip); a group with no data drops out whole.
+-  const groups: string[] = []
++  const groups: { text: string; kind: 'counts' | 'time' | 'speed' | 'cache' | 'tokens'; fill?: number }[] = []
+   if (stats.steps > 0) {
+-    groups.push(t('stats.counts', { turns: stats.turns, steps: stats.steps }))
++    groups.push({ kind: 'counts', text: t('stats.counts', { turns: stats.turns, steps: stats.steps }) })
+     const durations: string[] = []
+     if (stats.llmMs > 0) durations.push(t('stats.llm', { duration: formatDuration(stats.llmMs) }))
+     if (stats.toolMs > 0) durations.push(t('stats.toolCall', { duration: formatDuration(stats.toolMs) }))
+-    if (durations.length > 0) groups.push(durations.join(' · '))
++    if (durations.length > 0) groups.push({ kind: 'time', text: durations.join(' · ') })
+     const speeds: string[] = []
+     if (stats.ttftSteps > 0) {
+       speeds.push(t('stats.ttftAverage', { duration: formatDuration(stats.ttftMs / stats.ttftSteps) }))
+@@ -186,7 +187,7 @@ export const StatsLine = memo(function StatsLine({ useSession, useProjection, t
+         throughput: formatTokensPerSecond(stats.decodeTokens / (stats.decodeMs / 1_000)),
+       }))
+     }
+-    if (speeds.length > 0) groups.push(speeds.join(' · '))
++    if (speeds.length > 0) groups.push({ kind: 'speed', text: speeds.join(' · ') })
+   }
+   // Context occupancy deliberately lives on the composer's ContextMeter ring,
+   // not here — one home per fact.
+@@ -197,13 +198,13 @@ export const StatsLine = memo(function StatsLine({ useSession, useProjection, t
+   if (usage !== undefined
+     && (billedInputTokens(usage) > 0 || usage.outputTokens > 0)) {
+     const cacheHit = cacheHitPercent(usage)
+-    if (cacheHit !== null) groups.push(t('stats.cacheHit', { percent: cacheHit }))
+-    groups.push(t('stats.tokens', {
++    if (cacheHit !== null) groups.push({ kind: 'cache', fill: cacheHit, text: t('stats.cacheHit', { percent: cacheHit }) })
++    groups.push({ kind: 'tokens', text: t('stats.tokens', {
+       input: formatTokens(billedInputTokens(usage)),
+       output: formatTokens(usage.outputTokens),
+-    }))
++    }) })
+   }
+-  const line = groups.join(' | ')
++  const line = groups.map(group => group.text).join(' | ')
+   // The row elides with ellipsis when overlong; a delayed hover tooltip carries
+   // the full line, enabled only while content is actually clipped.
+   const rootRef = useRef<HTMLDivElement | null>(null)
+@@ -221,11 +222,19 @@ export const StatsLine = memo(function StatsLine({ useSession, useProjection, t
    if (groups.length === 0) return null
    return (
      <Tooltip label={line} side="top" delayMs={500} disabled={!truncated}>
 -      <div ref={rootRef} className={css.root}>
 +      <div ref={rootRef} className={css.root} data-arcade-hud aria-label={line}>
          {groups.map((group, i) => (
-           <Fragment key={group}>
+-          <Fragment key={group}>
++          <Fragment key={group.kind}>
              {i > 0 && <><span className={css.sep} aria-hidden>|</span>{' '}</>}
 -            <span>{group}</span>
-+            <span data-hud-reading data-hud-slot={i + 1}>{group}</span>
++            <span
++              data-hud-reading
++              data-hud-kind={group.kind}
++              data-hud-slot={i + 1}
++              style={group.fill === undefined ? undefined : { '--dsh-hud-fill': `${Math.max(0, Math.min(100, group.fill))}%` } as CSSProperties}
++            >
++              <span data-hud-value>{group.text}</span>
++              {group.kind === 'cache' && <span data-hud-gauge aria-hidden />}
++            </span>
            </Fragment>
          ))}
        </div>
@@ -517,7 +578,7 @@ index ef1221cd99..798acdf2c4 100644
  import { HeroGlow, HeroShell, WorkspaceChip, workspaceLabel } from './EmptyHero.tsx'
  import css from './ConversationRoot.module.css'
 +import { ArcadeTransition } from './ArcadeTransition.tsx'
- 
+
  /** Full props composed from the slot contract. */
  export type ConversationRootProps = ConversationSlotProps
 @@ -31,6 +32,7 @@ export function ConversationRoot({
@@ -525,12 +586,12 @@ index ef1221cd99..798acdf2c4 100644
    const [pendingWorkspaceId, setPendingWorkspaceId] = useState<WorkspaceId | undefined>()
    const pickerAnchor = useRef<HTMLButtonElement>(null)
 +  const conversationElement = useRef<HTMLDivElement>(null)
- 
+
    // Publishes the seat's live height as --dsh-composer-height on the scroll
    // body so floating controls (ChatView back-to-bottom) clear the composer as
 @@ -98,7 +100,7 @@ export function ConversationRoot({
            : workspaceLabel(cwd)))
- 
+
    const heroWorkspaceRow = (
 -    <div className={css.heroWorkspaceRow}>
 +    <>
@@ -544,7 +605,7 @@ index ef1221cd99..798acdf2c4 100644
 -    </div>
 +    </>
    )
- 
+
    // The placeholder chip ("Choose workspace") and the Workspace-trigger input travel
 @@ -159,8 +161,13 @@ export function ConversationRoot({
    const composerBar = (
@@ -564,7 +625,7 @@ index ef1221cd99..798acdf2c4 100644
      </div>
 @@ -184,7 +191,8 @@ export function ConversationRoot({
    )
- 
+
    return (
 -    <div className={css.root} data-phase={phase}>
 +    <div ref={conversationElement} className={css.root} data-phase={phase}>
@@ -581,7 +642,7 @@ index d576aa175d..a081698b71 100644
  import type { ViewTab } from '../contract/views.ts'
  import css from './ConversationRoot.module.css'
 +import { ArcadeTransition } from './ArcadeTransition.tsx'
- 
+
  /** Full props composed from the strict session body contract. */
  export type ConversationSessionProps = ConversationSessionSlotProps
 @@ -165,6 +166,7 @@ export function ConversationSession({
@@ -604,7 +665,7 @@ index 4865ceecfa..1af965d9e2 100644
  // composer is NOT rendered here (it keeps its own stable tree position in
  // ConversationRoot so the textarea survives the hero → composer flip); CSS
  // positions it over this shell's glow area during the hero phase.
- 
+
 -import { useId } from 'react'
 +import { useEffect, useId, useState } from 'react'
  import type { ReactNode, RefObject } from 'react'
@@ -616,7 +677,7 @@ index 4865ceecfa..1af965d9e2 100644
  import type { ConversationSlotProps } from '../contract/slots.ts'
  import css from './HeroShell.module.css'
 +import { ArcadeParticles } from './ArcadeParticles.tsx'
- 
+
  /** The owner's locale seat type, passed to hero chrome as a plain prop. */
  type HeroTranslate = ConversationSlotProps['t']
 @@ -50,6 +51,7 @@ export function WorkspaceChip({ buttonRef, label, menuOpen = false, onClick, t }
@@ -639,7 +700,7 @@ index 4865ceecfa..1af965d9e2 100644
      </button>
    )
 @@ -100,6 +104,10 @@ export function HeroGlow({ className }: { className?: string | undefined }) {
- 
+
  /** Hero chrome props. The workspace row rides the InputBar accessory hole, not here. */
  export interface HeroShellProps {
 +  /** Focus the resident composer, or request a workspace when none is selected. */
@@ -651,7 +712,7 @@ index 4865ceecfa..1af965d9e2 100644
    /** Overlay content after the stack (modals). */
 @@ -107,22 +115,96 @@ export interface HeroShellProps {
  }
- 
+
  /**
 - * Render the hero chrome (headline only; no glow, no composer, no workspace
 + * Render the hero chrome (copy and decorative artwork; no composer or workspace
@@ -775,7 +836,7 @@ index 91dfb4a8a3..5ae047b809 100644
 @@ -38,6 +38,12 @@
    color: var(--dsw-alias-label-primary);
  }
- 
+
 +/* The personalised portrait composition is provided by ui-theme in dark mode.
 +   Keep the default light/system presentation bounded before theme selection. */
 +.root [data-whale-art],
@@ -792,7 +853,7 @@ index ae56780133..86aa5d6be4 100644
 @@ -29,6 +29,25 @@
    border-right: 1px solid var(--dsw-alias-border-l1);
  }
- 
+
 +/* Phones keep the center at the full viewport width. The sidebar child is
 +   rendered as a rail or drawer over that center instead of becoming a fixed
 +   grid track. */
@@ -830,9 +891,9 @@ index 2696dc91fa..d7a72d22f3 100644
 +} from './columns.ts'
  import type { createLayoutStore } from './stores.ts'
  import css from './AppFrame.module.css'
- 
+
 @@ -129,17 +132,24 @@ export function AppFrame({
- 
+
    // Narrow viewports auto-collapse the sidebar; the store mirror keeps
    // toggleSidebar's semantics right (narrow toggles flip the manual
 -  // re-expand override, stores.ts). Collapsed is decided here, so the
@@ -860,7 +921,7 @@ index 2696dc91fa..d7a72d22f3 100644
 +    : cols.sidebar
    const colsRef = useRef(cols)
    colsRef.current = cols
- 
+
 @@ -165,9 +175,11 @@ export function AppFrame({
      <div
        ref={frameRef}
@@ -989,7 +1050,7 @@ index 300075b88d..8db2dfc80c 100644
 @@ -22,6 +22,14 @@
    --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
  }
- 
+
 +/* The mobile trigger is a shell control, not the workspace preview surface.
 +   It stays in the DOM only for the mobile viewport and opens the one sidebar
 +   instance below as a fixed overlay. */
@@ -1067,7 +1128,7 @@ index d3fe6a63c1..4d926df276 100644
 @@ -36,6 +36,14 @@ const COLLAPSE_SETTLE_MS = 150
   */
  const SCROLLBAR_LINGER_MS = 2000
- 
+
 +/** The shell and the frame use the same CSS mobile layout threshold. */
 +const MOBILE_BREAKPOINT = 768
 +
@@ -1119,12 +1180,12 @@ index d3fe6a63c1..4d926df276 100644
 +    ? t('toggle.mobile.close')
 +    : collapsed ? t('toggle.open') : t('toggle.collapse')
 +  const toggleAction = mobileDrawerOpen ? closeMobileDrawer : toggleSidebar
- 
+
    // Freeze the content at its expanded width while it fades out (collapsed
    // && wide): the sliding column then clips it instead of reflowing it. The
 @@ -114,79 +149,115 @@ export function SidebarRoot({
    }, [pointerInside])
- 
+
    return (
 -    <div
 -      ref={column}
@@ -1255,7 +1316,7 @@ index d3fe6a63c1..4d926df276 100644
 -          {wide && <span className={clsx(css.newSessionLabel, css.wide)}>{t('session.new')}</span>}
 -        </button>
 -      </Tooltip>
- 
+
 -      {/* The browsing region fills the column between the controls and the
 -          foot in both states; its rail icon column rides the same slot. */}
 -      <div className={css.regionArea}>
@@ -1309,7 +1370,7 @@ index a8c4f2894d..0eec61c572 100644
 +  /** Mobile drawer closes after the browser opens a Session. */
 +  onSessionOpen: () => void
  }
- 
+
  /**
 diff --git a/packages/client/ui-sidebar/src/client/locales.ts b/packages/client/ui-sidebar/src/client/locales.ts
 index 8cf5ac6d7b..ff47cd82c8 100644
@@ -1322,7 +1383,7 @@ index 8cf5ac6d7b..ff47cd82c8 100644
 +  'toggle.mobile.open': '打开移动侧栏',
 +  'toggle.mobile.close': '关闭移动侧栏',
  } satisfies Record<string, string>
- 
+
  /** The sidebar namespace key union. */
 @@ -17,4 +19,6 @@ export const en = {
    'session.new.label': 'New session',
@@ -1346,7 +1407,7 @@ index 89b81b9de1..632ba378af 100644
 +  document.body.toggleAttribute('data-dsh-arcade', preference === 'arcade')
  })()</script>`
  }
- 
+
 diff --git a/packages/client/ui-theme/src/client/AppearanceRow.module.css b/packages/client/ui-theme/src/client/AppearanceRow.module.css
 index 6c5354b0ac..5d41175dec 100644
 --- a/packages/client/ui-theme/src/client/AppearanceRow.module.css
@@ -1464,7 +1525,7 @@ index b1db97d009..68d33e55dd 100644
  import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
  import type { createAppearanceRowStore } from './settings-store.ts'
  import css from './AppearanceRow.module.css'
- 
+
 -/** Injected business face: the preference write (t rides the standard locale seat). */
 +/** Appearance actions supplied by the theme owner. */
  export interface AppearanceRowInjected {
@@ -1474,13 +1535,13 @@ index b1db97d009..68d33e55dd 100644
 +  setColorPreference?: (id: 'light' | 'dark' | 'system') => void
 +  setAppearanceStyle?: (id: 'default' | 'arcade' | 'code-console') => void
  }
- 
+
 -/** Full component props: runtime share + store share + locale seat + injected face. */
 +/** Standard slot props with a presentation-only store mirror. */
  export type AppearanceRowComponentProps =
    PropsRuntime<'settings.general.item'> & PropsStore<ReturnType<typeof createAppearanceRowStore>>
    & PropsLocale<'settings.theme'> & AppearanceRowInjected
- 
+
 -/** Cube order and icons (figma 501:30015-30017: Light, Dark, System). */
 -const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof IconLightOutline16 }[] = [
 +const COLORS = [
@@ -1493,7 +1554,7 @@ index b1db97d009..68d33e55dd 100644
 +  { id: 'arcade', labelKey: 'appearance.arcade' },
 +  { id: 'code-console', labelKey: 'appearance.console' },
  ]
- 
+
 -/**
 - * Render the Appearance row.
 - * @param props - composed slot props.
@@ -1566,7 +1627,7 @@ index 82513a91d7..14947d7f17 100644
    Object.freeze({ id: 'dark', colorScheme: 'dark' as const, tokens: Object.freeze({}) }),
 +  Object.freeze({ id: 'arcade', colorScheme: 'dark' as const, tokens: Object.freeze({}) }),
  ])
- 
+
  const BUILTIN_INSPECT_TOKENS: readonly ThemeTokenInspection[] = Object.freeze([
 @@ -224,15 +227,31 @@ export class ThemeRuntime {
        throw new Error(`theme "${id}" is not registered`)
@@ -1580,7 +1641,7 @@ index 82513a91d7..14947d7f17 100644
      if (isThemePreference(id)) void this.host.set(THEME_PREFERENCE_FIELD, id)
      this.publish()
    }
- 
+
 +  /** Change the remembered base palette without disabling an active appearance style. */
 +  setColorPreference(id: 'light' | 'dark' | 'system'): void {
 +    void this.host.set('colorPreference', id)
@@ -1618,7 +1679,7 @@ index 82513a91d7..14947d7f17 100644
 @@ -368,6 +390,25 @@ function dynamicToken(name: string): ThemeTokenInspection {
    }
  }
- 
+
 +/* >>> arcade-window-runtime >>> (extracted verbatim by
 +   dsh-skin-digital-arcade/tools/gen-skin-client.mjs; keep this block free of
 +   imports and theme identifiers so it stays self-contained.) */
@@ -1752,7 +1813,7 @@ index 82513a91d7..14947d7f17 100644
 @@ -485,13 +538,80 @@ function installArcadePanelLayout(): () => void {
    }
  }
- 
+
 -/** Edge hit zone (px) that starts a panel resize drag. */
 -const RESIZE_EDGE = 8
 +/** Edge hit zone (px) that starts a panel resize drag. Wide enough to grab
@@ -1829,7 +1890,7 @@ index 82513a91d7..14947d7f17 100644
 +function snapLength(value: number): number {
 +  return Math.round(value / SNAP_STEP) * SNAP_STEP
 +}
- 
+
  interface ResizeDrag {
    pointerId: number
 @@ -500,68 +620,63 @@ interface ResizeDrag {
@@ -1847,7 +1908,7 @@ index 82513a91d7..14947d7f17 100644
    south: boolean
    north: boolean
  }
- 
+
 -/** The surfaces that accept a window-style resize drag: pinned code panels,
 - *  Think dossiers, and tool detail rails. Inline (unpinned) code bodies stay
 - *  in the message flow and keep their natural width. */
@@ -1869,7 +1930,7 @@ index 82513a91d7..14947d7f17 100644
    if (panel.getAttribute('data-dsh-detail-panel') === 'tool') return panel
    return panel.closest('[data-dsh-panel-pinned="true"]') !== null ? panel : null
  }
- 
+
  /**
 - * Window-style panel resizing plus live panel-to-panel avoidance. A drag that
 - * starts inside the panel edge zone resizes that panel through CSS variables
@@ -1889,7 +1950,7 @@ index 82513a91d7..14947d7f17 100644
  function installArcadePanelResize(): () => void {
    if (typeof document === 'undefined') return () => {}
    let drag: ResizeDrag | null = null
- 
+
 -  const pushAway = (panel: HTMLElement): void => {
 -    const current = panel.getBoundingClientRect()
 -    for (const other of document.querySelectorAll<HTMLElement>('[data-dsh-code-panel]')) {
@@ -2004,7 +2065,7 @@ index 82513a91d7..14947d7f17 100644
 +    if (drag.west) drag.panel.style.setProperty('--dsh-panel-left', `${Math.round(left)}px`)
 +    if (drag.north) drag.panel.style.setProperty('--dsh-panel-top', `${Math.round(top)}px`)
    }
- 
+
    const onPointerUp = (event: PointerEvent): void => {
      if (drag === null || event.pointerId !== drag.pointerId) return
 -    const panel = drag.panel
@@ -2031,12 +2092,12 @@ index 82513a91d7..14947d7f17 100644
 +      },
 +    }))
    }
- 
+
    // Edge-zone cursor feedback while hovering (no active drag).
 @@ -661,6 +822,27 @@ function installArcadePanelResize(): () => void {
    }
  }
- 
+
 +/**
 + * Click-to-front window layering. Pressing anywhere in a floating window raises
 + * it above the others, so the surface the user is reading or working in is the
@@ -2062,7 +2123,7 @@ index 82513a91d7..14947d7f17 100644
  interface DockEntry {
    side: 'left' | 'right'
 @@ -698,8 +880,12 @@ function installArcadeWindowChrome(): () => void {
- 
+
    const panelTitle = (panel: HTMLElement): string => {
      const row = panel.closest<HTMLElement>('[data-tool], [data-variant="think"]')
 -    const title = row?.querySelector<HTMLElement>('[class*="title"]')
@@ -2075,9 +2136,9 @@ index 82513a91d7..14947d7f17 100644
 +        : panel.textContent.trim()
      return text.slice(0, 24) || '面板'
    }
- 
+
 @@ -715,9 +901,7 @@ function installArcadeWindowChrome(): () => void {
- 
+
    const minimizedPanels = (side: 'left' | 'right'): HTMLElement[] => {
      const out: HTMLElement[] = []
 -    for (const panel of document.querySelectorAll<HTMLElement>(
@@ -2098,7 +2159,7 @@ index 82513a91d7..14947d7f17 100644
      if (command?.command === 'minimize') {
 @@ -835,10 +1019,12 @@ interface BodyDrag {
  const BODY_DRAG_THRESHOLD = 6
- 
+
  /**
 - * Android-widget style moving: pressing inside a floating panel body — any
 - * non-interactive, non-code area — and dragging floats the panel at the
@@ -2186,7 +2247,7 @@ index 82513a91d7..14947d7f17 100644
 @@ -926,6 +1142,139 @@ function installArcadePanelBodyDrag(): () => void {
    }
  }
- 
+
 +/**
 + * Let a fenced code block in the reply detach into a floating window, and move
 + * it again once detached. The block's banner is both the toggle and the drag
@@ -2333,9 +2394,9 @@ index 82513a91d7..14947d7f17 100644
 -  ctx.effect(installArcadeWindowChrome, 'ui-theme: arcade panel window chrome and docks')
 -  ctx.effect(installArcadePanelBodyDrag, 'ui-theme: arcade panel body drag')
 +  installArcadeWindowRuntime(ctx)
- 
+
    ctx.effect(() => ctx.locale.register(SETTINGS_NS, { zh, en }), 'ui-theme: settings row dictionaries')
- 
+
    const store = createAppearanceRowStore()
    let bound: BoundActions<typeof store> | undefined
    const sync = (snapshot: ThemeSnapshot): void => {
@@ -2368,7 +2429,7 @@ index 6df56ceb96..c058faf2a7 100644
 +  'appearance.console': '数码控制台',
 +  'appearance.darkNote': '像素霓虹与数码控制台使用深色配色；切回默认风格后恢复上方颜色模式。',
  } satisfies Record<string, string>
- 
+
  /** The settings.theme namespace key union. */
 @@ -17,4 +23,10 @@ export const en = {
    'appearance.light': 'Light',
@@ -2393,13 +2454,13 @@ index e4c76154e5..1b6b800f90 100644
 +  colorPreference: 'light' | 'dark' | 'system'
 +  consoleAvailable: boolean
  }
- 
+
  /** Declared action shape giving the exported factory a stable return type. */
  type AppearanceRowActions = {
 -  sync: (draft: AppearanceRowState, preference: ThemePreference, revision: number) => void
 +  sync: (draft: AppearanceRowState, preference: ThemePreference, revision: number, colorPreference?: 'light' | 'dark' | 'system', consoleAvailable?: boolean) => void
  }
- 
+
  /**
 @@ -25,12 +28,14 @@ type AppearanceRowActions = {
   */
@@ -2419,13 +2480,13 @@ index e4c76154e5..1b6b800f90 100644
      },
    })
 diff --git a/packages/client/ui-theme/src/styles/personal.css b/packages/client/ui-theme/src/styles/personal.css
-index c77d627c9b..07b33a06e9 100644
+index c77d627c9b..2aef5c5925 100644
 --- a/packages/client/ui-theme/src/styles/personal.css
 +++ b/packages/client/ui-theme/src/styles/personal.css
 @@ -44,7 +44,7 @@
    --rizen-crosshair-cursor: url('/assets/rizen-crosshair-cursor-64.png');
  }
- 
+
 -body {
 +body[data-dsh-arcade] {
    font-family: var(--dsw-font-family);
@@ -2434,7 +2495,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -57,16 +57,9 @@ body {
    --dsw-specific-bubble-highlight: rgb(46, 122, 176);
  }
- 
+
 -body:not([data-ds-dark-theme]) {
 -  background:
 -    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(91, 140, 255, 0.1), transparent 58%),
@@ -2443,15 +2504,15 @@ index c77d627c9b..07b33a06e9 100644
 -    repeating-linear-gradient(90deg, rgba(46, 122, 176, 0.04) 0 1px, transparent 1px 32px),
 -    #f7faff;
 -}
- 
+
 -body[data-ds-dark-theme] {
 +
 +body[data-dsh-arcade] {
    color: var(--rizen-ink);
    font-family: var(--dsw-font-family);
- 
+
 @@ -152,7 +145,7 @@ body[data-ds-dark-theme] {
- 
+
  /* Keep the existing hero illustration, but bring its glow into the console
     palette instead of the old gold accent. */
 -body[data-ds-dark-theme] svg ellipse[fill='#6187D8'] {
@@ -2460,7 +2521,7 @@ index c77d627c9b..07b33a06e9 100644
    animation: dsh-hero-glow 4.8s ease-in-out infinite;
  }
 @@ -170,71 +163,71 @@ body[data-ds-dark-theme] svg ellipse[fill='#6187D8'] {
- 
+
  /* Fusion Pixel is reserved for compact controls. Paragraphs and the composer
     stay on the readable system stack. */
 -body[data-ds-dark-theme] button,
@@ -2472,7 +2533,7 @@ index c77d627c9b..07b33a06e9 100644
    font-family: var(--dsw-font-pixel);
    letter-spacing: 0.1px;
  }
- 
+
 -body[data-ds-dark-theme] [class*='headlineText'],
 -body[data-ds-dark-theme] [class*='previewBadge'],
 -body[data-ds-dark-theme] [class*='newSessionLabel'],
@@ -2487,7 +2548,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-time-hover-root] :is([class*='timeStart'], [class*='timeEnd']) {
    font-family: var(--dsw-font-pixel);
  }
- 
+
  /* Sidebar session tree: workspace names, session titles, and status labels
     ride the treeitem rows — pixel face for the whole tree. */
 -body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'],
@@ -2496,7 +2557,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [class*='sidebarCol'] [role='treeitem'] :is(span, div) {
    font-family: var(--dsw-font-pixel);
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'] [class*='time'],
 -body[data-ds-dark-theme] [class*='sidebarCol'] [role='treeitem'] [class*='status'] {
 +body[data-dsh-arcade] [class*='sidebarCol'] [role='treeitem'] [class*='time'],
@@ -2504,12 +2565,12 @@ index c77d627c9b..07b33a06e9 100644
    font-family: var(--dsw-font-pixel-small);
    letter-spacing: 0.3px;
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] [class*='sectionLabel'] {
 +body[data-dsh-arcade] [class*='sidebarCol'] [class*='sectionLabel'] {
    font-family: var(--dsw-font-pixel);
  }
- 
+
  /* Settings rows: option titles and their 12px descriptions share the pixel
     face; both class suffixes are stable across the panel's CSS modules. */
 -body[data-ds-dark-theme] [role='dialog'] [class$='_title'],
@@ -2518,7 +2579,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [role='dialog'] [class$='_desc'] {
    font-family: var(--dsw-font-pixel);
  }
- 
+
  /* The official editor renderer owns font, color, smoothing, and shadows.
     Only the caret color is themed, so composing text cannot ghost or emboss. */
 -body[data-ds-dark-theme] [data-phase] textarea,
@@ -2527,14 +2588,14 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [contenteditable='true'] {
    caret-color: var(--rizen-cyan);
  }
- 
+
  /* Opaque columns keep the starfield atmospheric without sacrificing reading
     contrast. No backdrop-filter: fixed dialogs must retain the full viewport. */
 -body[data-ds-dark-theme] [class*='_frame'] {
 +body[data-dsh-arcade] [class*='_frame'] {
    background: transparent;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase='hero'],
 -body[data-ds-dark-theme] [data-phase='active'],
 -body[data-ds-dark-theme] [data-phase='settling'] {
@@ -2543,7 +2604,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase='settling'] {
    background: rgba(8, 13, 29, 0.72);
  }
- 
+
  /* The scene stays visible behind the transcript. A quiet veil and two soft
     color pools preserve contrast without turning the conversation into a hard
     rectangular mask. */
@@ -2559,7 +2620,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -246,9 +239,21 @@ body[data-ds-dark-theme] [data-phase='settling'] {
    animation: dsh-phase-signal 36s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase='hero'],
 -body[data-ds-dark-theme] [data-phase='active'],
 -body[data-ds-dark-theme] [data-phase='settling'] {
@@ -2597,7 +2658,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -279,9 +284,9 @@ body[data-ds-dark-theme] [data-phase='settling']::before {
      dsh-phase-orbit 17s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase='hero']::after,
 -body[data-ds-dark-theme] [data-phase='active']::after,
 -body[data-ds-dark-theme] [data-phase='settling']::after {
@@ -2610,7 +2671,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -329,7 +334,7 @@ body[data-ds-dark-theme] [data-phase='settling']::after {
    }
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] {
 +body[data-dsh-arcade] [class*='sidebarCol'] {
    background: rgba(8, 14, 31, 0.96);
@@ -2619,14 +2680,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -357,7 +362,7 @@ body[data-ds-dark-theme] [class*='sidebarCol'] {
    }
  }
- 
+
 -body[data-ds-dark-theme] [class*='detailsCol'] {
 +body[data-dsh-arcade] [class*='detailsCol'] {
    background: rgba(12, 19, 40, 0.96);
    background-image: linear-gradient(180deg, rgba(167, 139, 250, 0.07), transparent 26%);
    border-left: 1px solid rgba(167, 139, 250, 0.16);
 @@ -365,7 +370,7 @@ body[data-ds-dark-theme] [class*='detailsCol'] {
- 
+
  /* Short-form navigation and status elements carry the personal signature:
     a cool neon edge with a tiny amber status glint. */
 -body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true'] {
@@ -2637,14 +2698,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -377,7 +382,7 @@ body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true'] {
      0 0 18px rgba(91, 140, 255, 0.08);
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true']::before {
 +body[data-dsh-arcade] [class*='sidebarCol'] [aria-selected='true']::before {
    content: '';
    position: absolute;
    top: 50%;
 @@ -394,7 +399,7 @@ body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true']::before {
- 
+
  /* The selected workspace carries the personal mascot. It is an eight-frame
     4x2 sprite sheet, displayed with crisp pixel edges and no layout impact. */
 -body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true']::after {
@@ -2655,13 +2716,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -485,12 +490,12 @@ body[data-ds-dark-theme] [class*='sidebarCol'] [aria-selected='true']::after {
    }
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] button:hover svg {
 +body[data-dsh-arcade] [class*='sidebarCol'] button:hover svg {
    color: var(--rizen-cyan);
    filter: drop-shadow(0 0 5px rgba(124, 231, 255, 0.72));
  }
- 
+
 -body[data-ds-dark-theme] [class*='newSession'][aria-label='新建会话'] {
 +body[data-dsh-arcade] [class*='newSession'][aria-label='新建会话'] {
    border: 1px solid rgba(124, 231, 255, 0.28);
@@ -2670,7 +2731,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -505,7 +510,7 @@ body[data-ds-dark-theme] [class*='newSession'][aria-label='新建会话'] {
      transform var(--ds-transition-duration) var(--ds-ease-in-out);
  }
- 
+
 -body[data-ds-dark-theme] [class*='newSession'][aria-label='新建会话']:hover {
 +body[data-dsh-arcade] [class*='newSession'][aria-label='新建会话']:hover {
    border-color: rgba(182, 244, 255, 0.68);
@@ -2679,26 +2740,26 @@ index c77d627c9b..07b33a06e9 100644
 @@ -517,17 +522,17 @@ body[data-ds-dark-theme] [class*='newSession'][aria-label='新建会话']:hover
    transform: translateY(-1px);
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']) {
 +body[data-dsh-arcade] [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']) {
    border: 1px solid transparent;
    border-radius: 8px;
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']):hover {
 +body[data-dsh-arcade] [class*='sidebarCol'] :is([aria-label='搜索会话'], [aria-label='视图选项'], [aria-label='添加工作区']):hover {
    border-color: rgba(124, 231, 255, 0.24);
    background-color: rgba(124, 231, 255, 0.08);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label^='上下文已用'] {
 +body[data-dsh-arcade] [data-phase] button[aria-label^='上下文已用'] {
    border: 1px solid rgba(124, 231, 255, 0.2);
    border-radius: 50%;
    background: rgba(17, 27, 55, 0.62);
 @@ -543,7 +548,7 @@ body[data-ds-dark-theme] [data-phase] button[aria-label^='上下文已用'] {
- 
+
  /* One icon language across the console: quiet cyan at rest, violet/cyan
     energy on hover, and a small lift that never changes layout dimensions. */
 -body[data-ds-dark-theme] :is(button, [role='button']) svg {
@@ -2709,7 +2770,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -552,7 +557,7 @@ body[data-ds-dark-theme] :is(button, [role='button']) svg {
      transform var(--ds-transition-duration) var(--ds-ease-in-out);
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button']):not(:disabled):hover svg {
 +body[data-dsh-arcade] :is(button, [role='button']):not(:disabled):hover svg {
    color: var(--rizen-cyan);
@@ -2718,7 +2779,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -560,7 +565,7 @@ body[data-ds-dark-theme] :is(button, [role='button']):not(:disabled):hover svg {
    transform: translateY(-1px) scale(1.08);
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button']):focus-visible {
 +body[data-dsh-arcade] :is(button, [role='button']):focus-visible {
    outline: 1px solid var(--rizen-cyan);
@@ -2736,7 +2797,7 @@ index c77d627c9b..07b33a06e9 100644
    border-color: rgba(124, 231, 255, 0.28);
    background-image: linear-gradient(135deg, rgba(124, 231, 255, 0.06), rgba(167, 139, 250, 0.1));
  }
- 
+
 -body[data-ds-dark-theme] [class*='sessionLogButton']::after {
 +body[data-dsh-arcade] [class*='sessionLogButton']::after {
    content: '';
@@ -2745,7 +2806,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -590,7 +595,7 @@ body[data-ds-dark-theme] [class*='sessionLogButton']::after {
    animation: dsh-core-frames 2.1s infinite;
  }
- 
+
 -body[data-ds-dark-theme] button[aria-label='2 个后台任务']::before {
 +body[data-dsh-arcade] button[aria-label='2 个后台任务']::before {
    content: '';
@@ -2754,19 +2815,19 @@ index c77d627c9b..07b33a06e9 100644
 @@ -604,11 +609,11 @@ body[data-ds-dark-theme] button[aria-label='2 个后台任务']::before {
    animation: dsh-shard-frames 1.7s infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='tabActive'] {
 +body[data-dsh-arcade] [data-phase] [class*='tabActive'] {
    position: relative;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='tabActive']::after {
 +body[data-dsh-arcade] [data-phase] [class*='tabActive']::after {
    content: '';
    position: absolute;
    top: -3px;
 @@ -648,7 +653,7 @@ body[data-ds-dark-theme] [data-phase] [class*='tabActive']::after {
- 
+
  /* Hero title and compact tabs use a quiet signal glow instead of a large
     decorative treatment that competes with the conversation. */
 -body[data-ds-dark-theme] [data-phase='hero'] [class*='headlineText'] {
@@ -2777,14 +2838,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -671,14 +676,14 @@ body[data-ds-dark-theme] [data-phase='hero'] [class*='headlineText'] {
    }
  }
- 
+
 -body[data-ds-dark-theme] [role='tab'][aria-selected='true'] {
 +body[data-dsh-arcade] [role='tab'][aria-selected='true'] {
    color: var(--rizen-cyan);
    border-bottom-color: var(--rizen-cyan);
    box-shadow: 0 4px 12px rgba(124, 231, 255, 0.16);
  }
- 
+
  /* Conversation cards: cool borders, violet depth, restrained hover lift. */
 -body[data-ds-dark-theme] [data-chat-flow] [class*='bubble'] {
 +body[data-dsh-arcade] [data-chat-flow] [class*='bubble'] {
@@ -2794,7 +2855,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -689,7 +694,7 @@ body[data-ds-dark-theme] [data-chat-flow] [class*='bubble'] {
      box-shadow var(--ds-transition-duration) var(--ds-ease-in-out);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']:hover {
 +body[data-dsh-arcade] [data-chat-flow] [class*='bubble']:hover {
    border-color: rgba(124, 231, 255, 0.42);
@@ -2803,7 +2864,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -697,7 +702,7 @@ body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']:hover {
      0 2px 14px rgba(0, 0, 0, 0.3);
  }
- 
+
 -body[data-ds-dark-theme] .md-code-block {
 +body[data-dsh-arcade] .md-code-block {
    background-image: repeating-linear-gradient(
@@ -2812,13 +2873,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -706,14 +711,14 @@ body[data-ds-dark-theme] .md-code-block {
    border-left-color: var(--rizen-violet);
  }
- 
+
 -body[data-ds-dark-theme] :is(code, [class*='inlineCode']) {
 +body[data-dsh-arcade] :is(code, [class*='inlineCode']) {
    color: var(--rizen-cyan-bright);
    background-color: rgba(91, 140, 255, 0.13);
  }
- 
+
  /* Composer: a static grid, an opaque readable surface, and one thin moving
     scanline at the bottom edge. No falling blocks and no animation on text. */
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea) {
@@ -2829,14 +2890,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -729,7 +734,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea) {
    animation: dsh-composer-breathe 5.8s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea)::after {
 +body[data-dsh-arcade] [data-phase] [class*='card']:has(textarea)::after {
    content: '';
    position: absolute;
    right: 0;
 @@ -779,7 +784,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea)::after {
- 
+
  /* The semantic aria-label is stable and keeps this rule away from unrelated
     send-like class names elsewhere in the application. */
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息'] {
@@ -2845,7 +2906,7 @@ index c77d627c9b..07b33a06e9 100644
    color: var(--rizen-cyan);
    border-color: rgba(124, 231, 255, 0.58);
 @@ -798,7 +803,7 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息'] {
- 
+
  /* The mascot badge is anchored to the send control, so the composer keeps a
     deliberate right-side rhythm instead of a floating decoration. */
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']::before {
@@ -2856,13 +2917,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -817,12 +822,12 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']::before
      dsh-mascot-breathe 1.8s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息'] svg {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息'] svg {
    filter: drop-shadow(0 0 4px rgba(124, 231, 255, 0.88));
    transition: transform var(--ds-transition-duration) var(--ds-ease-in-out);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:not(:disabled):hover {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']:not(:disabled):hover {
    color: var(--rizen-cyan-bright);
@@ -2871,7 +2932,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -833,14 +838,14 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:not(:dis
    transform: translateY(-1px);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:not(:disabled):hover svg {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']:not(:disabled):hover svg {
    transform: translateY(-1px);
@@ -2879,15 +2940,15 @@ index c77d627c9b..07b33a06e9 100644
      drop-shadow(0 0 6px rgba(124, 231, 255, 1))
      drop-shadow(0 0 12px rgba(167, 139, 250, 0.76));
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(button[aria-label='发送消息']:active) {
 +body[data-dsh-arcade] [data-phase] [class*='card']:has(button[aria-label='发送消息']:active) {
    animation: dsh-send-burst 0.6s ease-out;
  }
- 
+
 @@ -865,7 +870,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(button[aria-label='发
  }
- 
+
  /* Menus and settings surfaces remain readable and fully opaque. */
 -body[data-ds-dark-theme] :is([role='dialog'], [role='menu'], [role='listbox']) {
 +body[data-dsh-arcade] :is([role='dialog'], [role='menu'], [role='listbox']) {
@@ -2897,29 +2958,29 @@ index c77d627c9b..07b33a06e9 100644
 @@ -873,25 +878,25 @@ body[data-ds-dark-theme] :is([role='dialog'], [role='menu'], [role='listbox']) {
      0 0 28px rgba(91, 140, 255, 0.12);
  }
- 
+
 -body[data-ds-dark-theme] :is([role='dialog'], [role='menu'], [role='listbox']) :is(button, [role='button']):hover {
 +body[data-dsh-arcade] :is([role='dialog'], [role='menu'], [role='listbox']) :is(button, [role='button']):hover {
    background-color: rgba(124, 231, 255, 0.09);
  }
- 
+
  /* Rizen Arcade HUD layer: generated pixel assets carry the game identity;
     CSS only supplies responsive placement, readable surfaces, and state color. */
 -body[data-ds-dark-theme] {
 +body[data-dsh-arcade] {
    cursor: var(--rizen-crosshair-cursor) 32 32, crosshair;
  }
- 
+
 -body[data-ds-dark-theme] :is(textarea, input, [contenteditable='true']) {
 +body[data-dsh-arcade] :is(textarea, input, [contenteditable='true']) {
    cursor: text;
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button'], a, select) {
 +body[data-dsh-arcade] :is(button, [role='button'], a, select) {
    cursor: var(--rizen-crosshair-cursor) 32 32, pointer;
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol'] {
 +body[data-dsh-arcade] [class*='sidebarCol'] {
    position: relative;
@@ -2934,7 +2995,7 @@ index c77d627c9b..07b33a06e9 100644
    z-index: 999;
    overflow: visible;
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol']::before {
 +body[data-dsh-arcade] [class*='sidebarCol']::before {
    content: '';
@@ -2943,7 +3004,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -923,7 +928,7 @@ body[data-ds-dark-theme] [class*='sidebarCol']::before {
    animation: dsh-sidebar-radar 12s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [class*='sidebarCol']::after {
 +body[data-dsh-arcade] [class*='sidebarCol']::after {
    content: '';
@@ -2952,7 +3013,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -951,7 +956,7 @@ body[data-ds-dark-theme] [class*='sidebarCol']::after {
    50% { transform: translate3d(-14px, -20px, 0) scale(1.08); opacity: 0.28; }
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow] {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] {
    position: relative;
@@ -2965,14 +3026,14 @@ index c77d627c9b..07b33a06e9 100644
 -  transition: transform 220ms ease;
 +  transition: padding 220ms ease;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind] {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow-kind] {
    box-sizing: border-box;
    min-width: 0;
    overflow-wrap: anywhere;
  }
- 
+
 +/* Detail bodies are viewport windows. Their React owners remain in the
 +   message row for reconciliation, while fixed positioning keeps the window
 +   independent of transcript scrolling. */
@@ -2989,12 +3050,12 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [data-chat-flow-kind='assistant-step'] {
    margin-block: 8px;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call'] {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow-kind='tool-call'] {
    margin-block: 6px;
  }
- 
+
  /* The composer stack is sticky with the input seat. Keep the veil attached to
     that stack instead of the viewport, so it follows the conversation scroll
     and never becomes a full-page mask. */
@@ -3004,7 +3065,7 @@ index c77d627c9b..07b33a06e9 100644
 -  z-index: 2;
 -  isolation: isolate;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='composerStack']::before {
 +body[data-dsh-arcade] [data-phase] [class*='composerStack']::before {
    content: '';
@@ -3013,13 +3074,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1009,46 +1022,43 @@ body[data-ds-dark-theme] [data-phase] [class*='composerStack']::before {
    z-index: 0;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='composerStack'] [class*='card'] {
 +body[data-dsh-arcade] [data-phase] [class*='composerStack'] [class*='card'] {
    position: relative;
    z-index: 1;
  }
- 
+
 -/* An open disclosure uses the unused left rail. The main transcript shifts
 -   as one surface so the detail card never sits on top of readable prose. */
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-disclosure-row][aria-expanded='true']),
@@ -3029,7 +3090,7 @@ index c77d627c9b..07b33a06e9 100644
 +/* Detail panels float above the transcript. They never reserve width in the
 +   message flow, so opening, pinning, or resizing one leaves the conversation
 +   column exactly as wide as it was. */
- 
+
  /* Assistant replies stay visually connected, but the text gets a quiet
     local scrim so the city scene never competes with a long paragraph. */
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant'],
@@ -3038,7 +3099,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [data-chat-flow-kind='assistant-step'] {
    background: linear-gradient(90deg, rgba(12, 19, 41, 0.42), rgba(24, 20, 48, 0.2) 72%, transparent);
  }
- 
+
  /* Markdown owns its own font shorthand, so the conversation root alone is
     not enough to make the prose consistently pixel-styled. Keep math and code
     readable while giving headings, paragraphs, lists, and quotes one family. */
@@ -3048,19 +3109,19 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] [class*='markdown'] :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, blockquote, a, strong, em) {
    font-family: var(--dsw-font-pixel) !important;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow] [class*='markdown'] :is(pre, code, .md-code-block, [class*='code']) {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] [class*='markdown'] :is(pre, code, .md-code-block, [class*='code']) {
    font-family: var(--dsw-font-pixel-small) !important;
  }
- 
+
  /* Tables ride the same pixel face as the surrounding prose; the official
     shorthand keeps 15px sizing, only the family is swapped. */
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow] [class*='markdown'] :is(table, th, td) {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] [class*='markdown'] :is(table, th, td) {
    font-family: var(--dsw-font-pixel) !important;
  }
- 
+
  /* The scene atlas is a restrained landmark in the open transcript space. It
     is anchored to the column, so it never wanders over the message text. */
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow]::before {
@@ -3069,7 +3130,7 @@ index c77d627c9b..07b33a06e9 100644
    position: absolute;
    top: 22px;
 @@ -1072,17 +1082,19 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow]::before {
- 
+
  /* Think details become a compact left-side dossier while the disclosure row
     remains in the transcript as the control and summary. */
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) {
@@ -3077,7 +3138,7 @@ index c77d627c9b..07b33a06e9 100644
 +  position: relative;
    z-index: 3;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='assistant-step']:has([data-disclosure-row][aria-expanded='true']) [class*='thinkBody'] {
 -  position: absolute;
 -  top: 0;
@@ -3103,7 +3164,7 @@ index c77d627c9b..07b33a06e9 100644
 +  position: relative;
    z-index: 3;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([data-disclosure-row][aria-expanded='true']) [data-tool] > div > [data-disclosure-row] ~ div {
 -  position: absolute;
 -  top: 30px;
@@ -3123,7 +3184,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1127,11 +1141,9 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow-kind='tool-call']:has([dat
    z-index: 4;
  }
- 
+
 -/* A pinned code panel keeps its measured viewport position while the
 -   transcript avoids its rail. The flow is the containing block for this
 -   fixed child, so the React panel stores coordinates relative to the flow
@@ -3142,7 +3203,7 @@ index c77d627c9b..07b33a06e9 100644
 -  z-index: 40;
 +  z-index: var(--dsh-panel-z, 40);
  }
- 
+
  /* Expanded detail surfaces size through the theme runtime's window-style
     resize drag: width/height come from CSS variables set while the pointer
 -   drags an edge or corner, with the browser keeping min/max guards. The
@@ -3158,7 +3219,7 @@ index c77d627c9b..07b33a06e9 100644
    max-width: calc(100vw - 24px);
    overflow: auto;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] :is([class*='thinkBody'], [data-dsh-detail-panel], [data-dsh-code-panel])::after {
 -  content: '';
 -  position: absolute;
@@ -3187,7 +3248,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true']) {
 +  transform: none;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow]:has([data-dsh-panel-pinned='true'][data-dsh-panel-side='left']):has([data-dsh-panel-pinned='true'][data-dsh-panel-side='right']) {
 -  transform: translateX(0);
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] {
@@ -3195,7 +3256,7 @@ index c77d627c9b..07b33a06e9 100644
 +  padding-left: 32px;
 +  padding-right: 30px;
  }
- 
+
 -/* Multiple pinned cards share the same rail without changing the normal
 -   message width. Their local drag offsets determine the final vertical
 -   stack, while the rail-safe transcript remains readable between them. */
@@ -3209,7 +3270,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1195,7 +1191,7 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-pane
      0 0 28px rgba(210, 140, 255, 0.18);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-dragging='true'] [data-dsh-code-panel] {
 +body[data-dsh-arcade] [data-phase] [data-chat-flow] [data-tool][data-dsh-panel-dragging='true'] [data-dsh-code-panel] {
    cursor: grabbing;
@@ -3217,7 +3278,7 @@ index c77d627c9b..07b33a06e9 100644
    box-shadow:
 @@ -1205,8 +1201,10 @@ body[data-ds-dark-theme] [data-phase] [data-chat-flow] [data-tool][data-dsh-pane
  }
- 
+
  /* The existing context-meter panel already contains the live used/capacity
 -   projection. Move that real panel into the left rail when it is opened. */
 -body[data-ds-dark-theme] [data-phase] [class*='NjBokG_panel'] {
@@ -3229,7 +3290,7 @@ index c77d627c9b..07b33a06e9 100644
    top: auto;
    right: auto;
 @@ -1226,8 +1224,8 @@ body[data-ds-dark-theme] [data-phase] [class*='NjBokG_panel'] {
- 
+
  /* User and steering messages become angular game dialogue panels instead of
     generic rounded cards. The clipped corners preserve the existing width. */
 -body[data-ds-dark-theme] [data-chat-flow-kind='user'] [class*='bubble'],
@@ -3242,14 +3303,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1241,29 +1239,29 @@ body[data-ds-dark-theme] [data-chat-flow-kind='steering'] [class*='bubble'] {
      0 8px 22px rgba(0, 0, 0, 0.28);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow-kind='user'] [class*='bubble']::after,
 -body[data-ds-dark-theme] [data-chat-flow-kind='steering'] [class*='bubble']::after {
 +body[data-dsh-arcade] [data-chat-flow-kind='user'] [class*='bubble']::after,
 +body[data-dsh-arcade] [data-chat-flow-kind='steering'] [class*='bubble']::after {
    content: none;
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow-kind='user'] [class*='bubble']:hover,
 -body[data-ds-dark-theme] [data-chat-flow-kind='steering'] [class*='bubble']:hover {
 +body[data-dsh-arcade] [data-chat-flow-kind='user'] [class*='bubble']:hover,
@@ -3259,7 +3320,7 @@ index c77d627c9b..07b33a06e9 100644
      0 0 30px rgba(124, 231, 255, 0.22),
      0 8px 22px rgba(0, 0, 0, 0.3);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow-kind='assistant'],
 -body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step'] {
 +body[data-dsh-arcade] [data-chat-flow-kind='assistant'],
@@ -3269,7 +3330,7 @@ index c77d627c9b..07b33a06e9 100644
    padding-right: 10px;
    border-radius: 8px;
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow-kind='assistant']::before,
 -body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step']::before {
 +body[data-dsh-arcade] [data-chat-flow-kind='assistant']::before,
@@ -3278,7 +3339,7 @@ index c77d627c9b..07b33a06e9 100644
    position: absolute;
    top: 12px;
 @@ -1285,7 +1283,7 @@ body[data-ds-dark-theme] [data-chat-flow-kind='assistant-step']::before {
- 
+
  /* Tool rows read as compact telemetry cards. The existing tool content keeps
     ownership of layout and disclosure behavior; this only adds the HUD shell. */
 -body[data-ds-dark-theme] [data-chat-flow] [data-tool] {
@@ -3289,7 +3350,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1300,7 +1298,7 @@ body[data-ds-dark-theme] [data-chat-flow] [data-tool] {
    box-shadow: inset 3px 0 0 rgba(124, 231, 255, 0.48), 0 0 18px rgba(91, 140, 255, 0.08);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [data-tool]::before {
 +body[data-dsh-arcade] [data-chat-flow] [data-tool]::before {
    content: '';
@@ -3298,14 +3359,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1316,7 +1314,7 @@ body[data-ds-dark-theme] [data-chat-flow] [data-tool]::before {
    animation: dsh-tool-particle 3.6s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [data-tool][data-state='running'] {
 +body[data-dsh-arcade] [data-chat-flow] [data-tool][data-state='running'] {
    border-color: rgba(124, 231, 255, 0.42);
    box-shadow:
      inset 3px 0 0 var(--rizen-cyan),
 @@ -1332,7 +1330,7 @@ body[data-ds-dark-theme] [data-chat-flow] [data-tool][data-state='running'] {
- 
+
  /* Composer: an angular command console with a scene-atlas beacon in its
     corner and the existing readable editor surface left untouched. */
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea) {
@@ -3323,7 +3384,7 @@ index c77d627c9b..07b33a06e9 100644
    overflow: visible;
    clip-path: none;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea)::before {
 +body[data-dsh-arcade] [data-phase] [class*='card']:has(textarea)::before {
    content: '';
@@ -3332,7 +3393,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1370,7 +1368,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea)::before {
    50% { transform: rotate(8deg) scale(1.04); opacity: 0.18; }
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']::after {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']::after {
    content: '';
@@ -3341,14 +3402,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1384,7 +1382,7 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']::after {
    opacity: 0;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:not(:disabled):hover::after {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']:not(:disabled):hover::after {
    opacity: 0.56;
    animation: dsh-energy-frames 1.2s steps(1, end) infinite;
  }
 @@ -1407,7 +1405,7 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:not(:dis
- 
+
  /* Bottom telemetry becomes the page's HUD status rail: still one compact
     readable line, but framed like a live game-system readout. */
 -body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep']) {
@@ -3359,7 +3420,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1426,7 +1424,7 @@ body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:ha
    box-shadow: 0 0 18px rgba(91, 140, 255, 0.1), inset 0 0 18px rgba(124, 231, 255, 0.04);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::before {
 +body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::before {
    content: '';
@@ -3368,7 +3429,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1442,7 +1440,7 @@ body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:ha
    animation: dsh-hud-radar 5.2s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::after {
 +body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep'])::after {
    content: '';
@@ -3377,7 +3438,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1455,7 +1453,7 @@ body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:ha
    animation: dsh-hud-sweep 4.4s linear infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep']) [class*='sep'] {
 +body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [class*='root']:has(> [class*='sep']) [class*='sep'] {
    color: rgba(240, 183, 102, 0.78);
@@ -3395,7 +3456,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1484,7 +1482,7 @@ body[data-ds-dark-theme] :is(button, [role='button'], a, select) {
      transform var(--ds-transition-duration) var(--ds-ease-in-out);
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button'], a, select):not(:disabled):hover {
 +body[data-dsh-arcade] :is(button, [role='button'], a, select):not(:disabled):hover {
    color: var(--rizen-cyan-bright);
@@ -3404,7 +3465,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1492,7 +1490,7 @@ body[data-ds-dark-theme] :is(button, [role='button'], a, select):not(:disabled):
    transform: translateY(-1px);
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button'], a, select):not(:disabled):active {
 +body[data-dsh-arcade] :is(button, [role='button'], a, select):not(:disabled):active {
    color: var(--rizen-amber);
@@ -3413,14 +3474,14 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1500,7 +1498,7 @@ body[data-ds-dark-theme] :is(button, [role='button'], a, select):not(:disabled):
    transform: translateY(1px) scale(0.97);
  }
- 
+
 -body[data-ds-dark-theme] :is(button, [role='button'], a, select):focus-visible {
 +body[data-dsh-arcade] :is(button, [role='button'], a, select):focus-visible {
    outline: 1px solid var(--rizen-magenta);
    outline-offset: 3px;
    box-shadow:
 @@ -1510,19 +1508,19 @@ body[data-ds-dark-theme] :is(button, [role='button'], a, select):focus-visible {
- 
+
  /* The cursor itself is the moving reticle. These target states add a second
     layer of feedback so a pointer crossing the UI feels like a lock-on. */
 -body[data-ds-dark-theme] :is(button, [role='button'], a, select):not(:disabled):hover svg {
@@ -3430,13 +3491,13 @@ index c77d627c9b..07b33a06e9 100644
      drop-shadow(0 0 4px rgba(111, 255, 224, 0.9))
      drop-shadow(0 0 9px rgba(255, 98, 189, 0.46));
  }
- 
+
 -body[data-ds-dark-theme] [role='tab']:not([aria-selected='true']) {
 +body[data-dsh-arcade] [role='tab']:not([aria-selected='true']) {
    position: relative;
    overflow: hidden;
  }
- 
+
 -body[data-ds-dark-theme] [role='tab']:not([aria-selected='true'])::after {
 +body[data-dsh-arcade] [role='tab']:not([aria-selected='true'])::after {
    content: '';
@@ -3445,13 +3506,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1535,14 +1533,14 @@ body[data-ds-dark-theme] [role='tab']:not([aria-selected='true'])::after {
    transform: translateX(-120%);
  }
- 
+
 -body[data-ds-dark-theme] [role='tab']:not([aria-selected='true']):hover::after {
 +body[data-dsh-arcade] [role='tab']:not([aria-selected='true']):hover::after {
    opacity: 0.86;
    animation: dsh-hover-scan 0.72s steps(5, end) both;
  }
- 
+
  /* Hovering a dialogue panel briefly decodes its text in chromatic slices. It
     is intentionally short and only starts on entry, so reading stays calm. */
 -body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']::before {
@@ -3462,13 +3523,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1555,12 +1553,12 @@ body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']::before {
    transform: translateX(-130%);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [class*='bubble']:hover::before {
 +body[data-dsh-arcade] [data-chat-flow] [class*='bubble']:hover::before {
    opacity: 0.9;
    animation: dsh-bubble-scan 0.68s steps(6, end) both;
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [data-tool]:hover {
 +body[data-dsh-arcade] [data-chat-flow] [data-tool]:hover {
    border-color: rgba(255, 98, 189, 0.64);
@@ -3477,13 +3538,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1569,14 +1567,14 @@ body[data-ds-dark-theme] [data-chat-flow] [data-tool]:hover {
      0 0 42px rgba(255, 195, 107, 0.1);
  }
- 
+
 -body[data-ds-dark-theme] [data-chat-flow] [data-tool]:hover::before {
 +body[data-dsh-arcade] [data-chat-flow] [data-tool]:hover::before {
    opacity: 0.34;
    filter: drop-shadow(0 0 7px rgba(255, 195, 107, 0.72));
  }
- 
+
  /* Pointer feedback is placed by the theme runtime at the actual click point,
     so the crosshair reads as an arcade hit rather than a button-only ripple. */
 -body[data-ds-dark-theme] .dsh-click-hit {
@@ -3494,7 +3555,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1595,8 +1593,8 @@ body[data-ds-dark-theme] .dsh-click-hit {
    animation: dsh-hit-fire 0.56s steps(5, end) both;
  }
- 
+
 -body[data-ds-dark-theme] .dsh-click-hit::before,
 -body[data-ds-dark-theme] .dsh-click-hit::after {
 +body[data-dsh-arcade] .dsh-click-hit::before,
@@ -3505,7 +3566,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1604,14 +1602,14 @@ body[data-ds-dark-theme] .dsh-click-hit::after {
    box-shadow: 0 0 8px rgba(111, 255, 224, 0.88);
  }
- 
+
 -body[data-ds-dark-theme] .dsh-click-hit::before {
 +body[data-dsh-arcade] .dsh-click-hit::before {
    top: 50%;
@@ -3513,7 +3574,7 @@ index c77d627c9b..07b33a06e9 100644
    left: -9px;
    height: 1px;
  }
- 
+
 -body[data-ds-dark-theme] .dsh-click-hit::after {
 +body[data-dsh-arcade] .dsh-click-hit::after {
    top: -9px;
@@ -3531,7 +3592,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1652,7 +1650,7 @@ body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-han
    color: rgba(182, 244, 255, 0.78);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle]::after {
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle]::after {
    content: '';
@@ -3540,13 +3601,13 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1665,20 +1663,20 @@ body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-han
    animation: dsh-dock-sweep 3.4s linear infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel] [data-dsh-drag-handle] [data-dsh-panel-actions] {
    position: relative;
    z-index: 1;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'],
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label='关闭面板'] {
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'],
@@ -3556,7 +3617,7 @@ index c77d627c9b..07b33a06e9 100644
    border: 1px solid transparent;
    color: rgba(182, 244, 255, 0.82);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'][aria-pressed='true'] {
 +body[data-dsh-arcade] [data-phase] [data-dsh-detail-panel] button[aria-label*='固定面板'][aria-pressed='true'] {
    border-color: rgba(255, 195, 107, 0.62);
@@ -3574,7 +3635,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1702,7 +1700,7 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea:focus, [conte
    animation: dsh-composer-focus 1.8s ease-in-out infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea:focus, [contenteditable='true']:focus)::after {
 +body[data-dsh-arcade] [data-phase] [class*='card']:has(textarea:focus, [contenteditable='true']:focus)::after {
    content: 'INPUT // DECODE 01';
@@ -3583,19 +3644,19 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1728,18 +1726,18 @@ body[data-ds-dark-theme] [data-phase] [class*='card']:has(textarea:focus, [conte
    animation: dsh-input-decode 0.92s steps(2, end) infinite;
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] :is(textarea, input, [contenteditable='true']):focus {
 +body[data-dsh-arcade] [data-phase] :is(textarea, input, [contenteditable='true']):focus {
    caret-color: var(--rizen-magenta);
  }
- 
+
 -body[data-ds-dark-theme] [data-phase] :is(textarea, input, [contenteditable='true'])::selection {
 +body[data-dsh-arcade] [data-phase] :is(textarea, input, [contenteditable='true'])::selection {
    color: var(--rizen-night);
    background: rgba(255, 195, 107, 0.82);
    text-shadow: none;
  }
- 
+
  /* A held click reads as a hit-confirm rather than a generic pressed state. */
 -body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::after {
 +body[data-dsh-arcade] [data-phase] button[aria-label='发送消息']:active::after {
@@ -3604,7 +3665,7 @@ index c77d627c9b..07b33a06e9 100644
      dsh-energy-frames 0.42s steps(1, end),
 @@ -1789,10 +1787,10 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
  }
- 
+
  @media (prefers-reduced-motion: reduce) {
 -  body[data-ds-dark-theme],
 -  body[data-ds-dark-theme] *,
@@ -3620,7 +3681,7 @@ index c77d627c9b..07b33a06e9 100644
 @@ -1800,44 +1798,304 @@ body[data-ds-dark-theme] [data-phase] button[aria-label='发送消息']:active::
    }
  }
- 
+
 -/* Think dossiers pin like code panels: viewport-fixed at the measured offset
 -   with the transcript avoiding their rail. This rule must out-specify the
 -   inline left-rail dossier rule (assistant-step + :has + thinkBody), or the
@@ -3643,7 +3704,7 @@ index c77d627c9b..07b33a06e9 100644
 -  z-index: 40;
 +  z-index: var(--dsh-panel-z, 40);
  }
- 
+
  /* Minimized panels park in the dock: hidden from the transcript until the
     theme runtime restores them from the taskbar list. */
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-minimized='true'],
@@ -3652,7 +3713,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase] [class*='thinkBody'][data-dsh-panel-minimized='true'] {
    display: none;
  }
- 
+
 -/* Maximized panels fill the viewport like a fullscreen window; the explicit
 -   overrides win over the pinned rail rules while the window is enlarged. */
 -body[data-ds-dark-theme] [data-phase] [data-dsh-detail-panel][data-dsh-panel-maximized='true'],
@@ -3685,7 +3746,7 @@ index c77d627c9b..07b33a06e9 100644
    z-index: 500 !important;
    overflow: auto;
  }
- 
+
 +/* Inside a floating window the reader controls the width, so a diff line wraps
 +   instead of forcing a horizontal scroll through a narrow card. The hanging
 +   indent keeps a wrapped continuation under the text rather than under the
@@ -3938,7 +3999,7 @@ index c77d627c9b..07b33a06e9 100644
  /* Taskbar docks on both free flanks of the transcript. Each side holds a
     stack button that opens the list of minimized panels parked there. */
  .rizen-dock {
-@@ -1943,3 +2201,895 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
+@@ -1943,3 +2201,1024 @@ body[data-ds-dark-theme] [data-phase] [class*='thinkBody'][data-dsh-panel-maximi
    background: rgba(124, 231, 255, 0.08);
    color: var(--rizen-cyan-bright);
  }
@@ -4565,7 +4626,7 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-phase='active'] button[aria-haspopup] {box-shadow:none;border-color:#345b8655;background:#10264a;}
 +body[data-dsh-arcade] [data-chat-flow] :is(p,li,blockquote) {font-family:'Microsoft YaHei',sans-serif!important;text-shadow:none;}
 +body[data-dsh-arcade] [data-phase] [class*='card']:has(textarea)::after {content:none;}
-+body[data-dsh-arcade] [data-phase] :is(textarea,[contenteditable='true']),body[data-dsh-arcade] [data-chat-flow] {font-family:'Microsoft YaHei',sans-serif!important;font-size:15px;line-height:1.8;color:#e6f2ff;}
++body[data-dsh-arcade] [data-chat-flow] {font-family:'Microsoft YaHei',sans-serif!important;font-size:15px;line-height:1.8;color:#e6f2ff;}
 +body[data-dsh-arcade] [data-chat-flow] [class*='bubble'] {background:#163653;border-color:#3b6088;box-shadow:none;}
 +body[data-dsh-arcade] [data-phase] button:focus-visible,body[data-dsh-arcade] [class*='sidebarCol'] button:focus-visible {outline:2px solid #b4f8ff;outline-offset:3px;}
 +@container dsh-home (max-width:700px) {
@@ -4778,11 +4839,117 @@ index c77d627c9b..07b33a06e9 100644
 +body[data-dsh-arcade] [data-chat-flow]::before {content:'LANXI / SESSION LINK';display:block;margin:12px 22px;color:#7cccdf;font:9px/18px var(--dsw-font-pixel);letter-spacing:1px;border-bottom:1px solid #46c8ff44;padding-bottom:8px;pointer-events:none;}
 +body[data-dsh-arcade] [data-chat-flow] [data-chat-anchor-key] {border-radius:0!important;}
 +body[data-dsh-arcade] [data-chat-flow] [class*='markdown'] {font-family:'Microsoft YaHei','Segoe UI',sans-serif;line-height:1.8;}
-+body[data-dsh-arcade] [data-arcade-hud] {display:flex;flex-wrap:wrap;gap:4px;overflow:visible;white-space:normal;max-width:none;padding:8px 12px 6px;text-align:left;background:#0b2245;border-top:1px solid #52bcdf88;box-shadow:inset 0 2px #0c395f;font:11px/18px var(--dsw-font-pixel);}
-+body[data-dsh-arcade] [data-arcade-hud] [class*='sep'] {display:none;}
-+body[data-dsh-arcade] [data-hud-reading] {flex:1 1 180px;display:flex;gap:8px;align-items:center;padding:5px 8px;border:1px solid #438bb34d;background:linear-gradient(90deg,#225a8844,#16335522);color:#c3edff;}
-+body[data-dsh-arcade] [data-hud-reading]::before {content:attr(data-hud-slot);display:grid;place-content:center;flex-shrink:0;width:18px;height:18px;background:#297caf;color:#abffff;box-shadow:2px 2px #071529;font-size:10px;}
-+body[data-dsh-arcade] [data-hud-reading]:nth-of-type(4n) {border-bottom-color:#9c87e0;}
++/* Compact cabinet readings: moving ticks are decorative; cache fill is measured. */
++body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [data-arcade-hud][aria-label]:has(> [data-hud-reading]) {
++  display:grid;
++  grid-template-columns:repeat(6,minmax(0,1fr));
++  gap:3px;
++  max-width:none;
++  padding:4px 6px 6px;
++  white-space:normal;
++  overflow:visible;
++  text-align:left;
++  border:0;
++  border-top:2px solid #47c7f2;
++  border-radius:0;
++  background:#081a31;
++  box-shadow:inset 0 2px #153955;
++  clip-path:none;
++  font:12px/16px var(--dsw-font-pixel);
++}
++body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [data-arcade-hud][aria-label]:has(> [data-hud-reading]) [class*='sep'],
++body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [data-arcade-hud][aria-label]:has(> [data-hud-reading])::before,
++body[data-dsh-arcade] [data-phase] [class*='composerSeat'] [data-arcade-hud][aria-label]:has(> [data-hud-reading])::after {display:none;}
++body[data-dsh-arcade] [data-hud-reading] {
++  --dsh-hud-accent:#56d7ff;
++  position:relative;
++  grid-column:span 2;
++  display:flex;
++  align-items:center;
++  min-width:0;
++  padding:14px 7px 6px;
++  border:0;
++  border-left:2px solid var(--dsh-hud-accent);
++  border-radius:0;
++  background:#102947;
++  background-image:linear-gradient(90deg,var(--dsh-hud-accent),var(--dsh-hud-accent));
++  background-size:12px 2px;
++  background-position:0 0;
++  background-repeat:no-repeat;
++  color:#d9f3ff;
++  box-shadow:inset -2px -2px #041326;
++  clip-path:polygon(4px 0,100% 0,100% calc(100% - 6px),calc(100% - 3px) calc(100% - 6px),calc(100% - 3px) calc(100% - 3px),calc(100% - 6px) calc(100% - 3px),calc(100% - 6px) 100%,0 100%,0 4px,4px 4px);
++  transition:background-color 140ms;
++}
++body[data-dsh-arcade] [data-hud-reading]:hover {background-color:#153656;}
++body[data-dsh-arcade] [data-hud-reading]::before {
++  content:attr(data-hud-slot);
++  position:absolute;
++  top:3px;
++  left:7px;
++  width:auto;
++  height:auto;
++  display:block;
++  color:var(--dsh-hud-accent);
++  background:none;
++  box-shadow:none;
++  font:9px/10px var(--dsw-font-pixel);
++}
++body[data-dsh-arcade] [data-hud-value] {
++  display:block;
++  min-width:0;
++  font-variant-numeric:tabular-nums;
++  overflow-wrap:anywhere;
++  text-shadow:none;
++}
++body[data-dsh-arcade] [data-hud-value]::before {
++  position:absolute;
++  top:3px;
++  left:19px;
++  right:5px;
++  color:#85b4d2;
++  font:9px/10px var(--dsw-font-pixel);
++  letter-spacing:.7px;
++  text-shadow:none;
++}
++body[data-dsh-arcade] [data-hud-reading]::after {
++  content:'';
++  position:absolute;
++  left:7px;
++  right:9px;
++  bottom:2px;
++  height:2px;
++  background:repeating-linear-gradient(90deg,#315c7a 0 5px,transparent 5px 8px);
++}
++body[data-dsh-arcade] [data-hud-reading][data-hud-kind='counts'] {--dsh-hud-accent:#79e9ff;color:#f0fcff;font-size:14px;line-height:17px;}
++body[data-dsh-arcade] [data-hud-kind='counts'] [data-hud-value]::before {content:'ROUND / STEP';}
++body[data-dsh-arcade] [data-hud-kind='time'] [data-hud-value]::before {content:'LLM / TOOL';}
++body[data-dsh-arcade] [data-hud-kind='speed'] {--dsh-hud-accent:#b7a5ff;}
++body[data-dsh-arcade] [data-hud-kind='speed'] [data-hud-value]::before {content:'RESPONSE';}
++body[data-dsh-arcade] [data-hud-reading][data-hud-kind='cache'] {--dsh-hud-accent:#73efcf;color:#d6fff3;}
++body[data-dsh-arcade] [data-hud-kind='cache'] [data-hud-value]::before {content:'CACHE HIT';}
++body[data-dsh-arcade] [data-hud-kind='cache']::after {display:none;}
++body[data-dsh-arcade] [data-hud-gauge] {position:absolute;left:7px;right:9px;bottom:2px;height:3px;background:repeating-linear-gradient(90deg,#284e5e 0 5px,transparent 5px 8px);}
++body[data-dsh-arcade] [data-hud-gauge]::before {content:'';display:block;width:var(--dsh-hud-fill,0%);height:100%;background:repeating-linear-gradient(90deg,#73efcf 0 5px,transparent 5px 8px);filter:none;}
++body[data-dsh-arcade] [data-hud-reading][data-hud-kind='tokens'] {grid-column:span 4;--dsh-hud-accent:#70baff;}
++body[data-dsh-arcade] [data-hud-kind='tokens'] [data-hud-value]::before {content:'TOKEN I/O';}
++@media (prefers-reduced-motion:no-preference) {
++  body[data-dsh-arcade] [data-hud-reading]:not([data-hud-kind='cache'])::after {
++    background-image:linear-gradient(90deg,transparent 0 20%,var(--dsh-hud-accent) 20% 35%,transparent 35%),repeating-linear-gradient(90deg,#315c7a 0 5px,transparent 5px 8px);
++    background-size:40px 2px,8px 2px;
++    animation:dsh-hud-pixel-rail 5s steps(5,end) infinite;
++  }
++  body[data-dsh-arcade] [data-hud-kind='time']::after {animation-delay:-1s;}
++  body[data-dsh-arcade] [data-hud-kind='speed']::after {animation-delay:-2s;}
++}
++@keyframes dsh-hud-pixel-rail {to {background-position:40px 0,0 0;}}
++@media (max-width:700px) {
++  body[data-dsh-arcade] [data-hud-reading] {grid-column:span 3;font-size:11px;line-height:15px;}
++  body[data-dsh-arcade] [data-hud-reading][data-hud-kind='counts'] {font-size:13px;line-height:17px;}
++  body[data-dsh-arcade] [data-hud-reading][data-hud-kind='tokens'] {grid-column:1 / -1;}
++  body[data-dsh-arcade] [data-hud-value]::before {letter-spacing:0;}
++}
++
 +body[data-dsh-arcade] [class*='newSession']::before {width:34px!important;height:34px!important;}
 +body[data-dsh-arcade] [data-whale-portrait] {max-width:calc(100% - 24px);left:50%;transform:translateX(-50%);}
 +@media(prefers-reduced-motion:reduce) {body[data-dsh-arcade] [data-composer-card] {transition:none;}}
@@ -4834,17 +5001,40 @@ index c77d627c9b..07b33a06e9 100644
 +  body[data-dsh-arcade] [data-arcade-option-title] {font-size:12px;}
 +  body[data-dsh-arcade] [data-arcade-start-menu] button[data-arcade-option] small {display:block;max-width:110px;font-size:11px;}
 +}
++
++/* One visible glyph layer; textarea and measurement mirror keep identical metrics. */
++body[data-dsh-arcade] [data-phase] [data-composer-card] :is([data-input-editor],[data-input-backdrop],[data-input-mirror]) {
++  font-family:'DshChipCell',var(--dsw-font-family)!important;
++  font-size:15px;
++  line-height:27px;
++  letter-spacing:normal;
++  text-shadow:none!important;
++  filter:none;
++  animation:none;
++}
++body[data-dsh-arcade] [data-phase] [data-composer-card] [data-input-editor] {
++  color:transparent!important;
++  -webkit-text-fill-color:transparent;
++  caret-color:#7fe7ff;
++}
++body[data-dsh-arcade] [data-phase] [data-composer-card] [data-input-editor]::placeholder {
++  color:#8fa8c5;
++  -webkit-text-fill-color:#8fa8c5;
++  text-shadow:none;
++}
++body[data-dsh-arcade] [data-phase] [data-composer-card] [data-input-backdrop] {color:#e6f2ff;}
++body[data-dsh-arcade] [data-phase] [data-composer-card] [data-input-mirror] {visibility:hidden;}
 diff --git a/packages/client/ui-theme/src/theme-settings.ts b/packages/client/ui-theme/src/theme-settings.ts
 index c2c268e21f..1f0f11ac70 100644
 --- a/packages/client/ui-theme/src/theme-settings.ts
 +++ b/packages/client/ui-theme/src/theme-settings.ts
 @@ -3,7 +3,7 @@
  import z from '@deepseek-ai/schemastery'
- 
+
  /** Built-in preferences accepted at the registry and settings boundaries. */
 -export const THEME_PREFERENCES = ['light', 'dark', 'system'] as const
 +export const THEME_PREFERENCES = ['light', 'dark', 'system', 'arcade', 'code-console'] as const
- 
+
  /** Settings namespace owned by the theme plugin. */
  export const THEME_SETTINGS_NAMESPACE = 'ui-theme'
 @@ -21,11 +21,14 @@ export const DEFAULT_PREFERENCE: ThemePreference = 'system'
@@ -4854,13 +5044,13 @@ index c2c268e21f..1f0f11ac70 100644
 +  /** Color choice restored when leaving a dark appearance style. */
 +  colorPreference?: 'light' | 'dark' | 'system'
  }
- 
+
  /** Durable theme schema; also the wire envelope the browser scope validates against. */
  export const ThemeSettingsSchema: z<ThemeSettings> = z.object({
    [THEME_PREFERENCE_FIELD]: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE),
 +  colorPreference: z.union(['light', 'dark', 'system']).default('system'),
  })
- 
+
  /**
 diff --git a/packages/client/ui-tool/src/client/tool/components/ToolRow.module.css b/packages/client/ui-tool/src/client/tool/components/ToolRow.module.css
 index 1df62039a3..34186dad3a 100644
@@ -4872,12 +5062,12 @@ index 1df62039a3..34186dad3a 100644
    flex-direction: column;
 +  min-height: 0;
  }
- 
+
  /* The personal arcade theme can dock code bodies outside the transcript. The
 @@ -205,6 +206,25 @@
    height: 14px;
  }
- 
+
 +/* Mobile tool details use the shared body portal as a sheet. Width and
 +   placement stay with the tool component so a theme cannot narrow the main
 +   message column through rail variables. */
@@ -4937,7 +5127,7 @@ index 1df62039a3..34186dad3a 100644
    max-height: 150px;
    overflow-y: auto;
  }
- 
+
 +/* A real control replaces the old passive divider only when two content
 +   areas are present. Its hit target is larger than the hairline, while the
 +   center mark keeps the affordance visible in the floating card. */
@@ -4984,7 +5174,7 @@ index 1df62039a3..34186dad3a 100644
     it floats off the rounded card edge instead of hugging it (the terminal
     card's own output scroller carries the same treatment in TerminalBlock). */
 @@ -302,12 +375,6 @@
- 
+
  /* l2 hairline between the IN and OUT sections, spanning the full card width
     (it sits between the padded sections, not inside their grid). */
 -.ioDivider {
@@ -5001,7 +5191,7 @@ index cc5d20bfdd..bb32b2bc1c 100644
 --- a/packages/client/ui-tool/src/client/tool/components/ToolRow.tsx
 +++ b/packages/client/ui-tool/src/client/tool/components/ToolRow.tsx
 @@ -19,6 +19,7 @@
- 
+
  import {
    useEffect,
 +  useId,
@@ -5024,7 +5214,7 @@ index cc5d20bfdd..bb32b2bc1c 100644
 +  width: number
 +  height: number
  }
- 
+
  interface PanelDrag {
 @@ -147,11 +150,15 @@ interface PanelDrag {
    startY: number
@@ -5033,19 +5223,19 @@ index cc5d20bfdd..bb32b2bc1c 100644
 +  width: number
 +  height: number
  }
- 
+
  type PanelStyle = CSSProperties & {
    '--dsh-panel-left'?: string
    '--dsh-panel-top'?: string
 +  '--dsh-panel-width'?: string
 +  '--dsh-panel-height'?: string
  }
- 
+
  function PinGlyph({ active }: { active: boolean }) {
 @@ -162,6 +169,175 @@ function PinGlyph({ active }: { active: boolean }) {
    )
  }
- 
+
 +const CONTENT_MIN_HEIGHT = 40
 +const CONTENT_MAX_HEIGHT = 150
 +const CONTENT_RESIZE_STEP = 16
@@ -5364,7 +5554,7 @@ index cc5d20bfdd..bb32b2bc1c 100644
 +      '--dsh-panel-height': `${panelOffset.height}px`,
      }
      : undefined
- 
+
 -  useEffect(() => {
 -    if (!open) return
 -    const frame = window.requestAnimationFrame(() => {
@@ -5902,3 +6092,15 @@ new file mode 100644
 +export function createDetailPortal(children: ReactNode, root: HTMLDivElement | null): ReactPortal | null {
 +  return root === null ? null : createPortal(children, root)
 +}
+diff --git a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+index 9585677ae3..68402e30a9 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+@@ -697,6 +697,7 @@ export function InputBar({
+           <div className={css.grow}>
+             <div aria-hidden className={css.backdrop} data-input-backdrop>{backdrop}</div>
+             <textarea
++              data-input-editor
+               ref={inputRef}
+               className={css.input}
+               value={draft}
